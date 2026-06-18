@@ -1,0 +1,231 @@
+@extends('layouts.app')
+@section('title', 'POS')
+@section('heading', 'Point of Sale')
+
+@push('styles')
+<style>
+    .pos-products { max-height: calc(100vh - 230px); overflow-y: auto; }
+    .pos-card { cursor: pointer; transition: .1s; }
+    .pos-card:hover { border-color: #0d6efd; transform: translateY(-2px); }
+    .pos-card .ph { height: 90px; background:#f1f3f5; display:flex; align-items:center; justify-content:center; }
+    .pos-card .ph img { max-height: 90px; max-width: 100%; object-fit: contain; }
+    .cart-wrap { max-height: calc(100vh - 430px); overflow-y: auto; }
+</style>
+@endpush
+
+@section('content')
+<div class="row g-3">
+    <!-- Products -->
+    <div class="col-lg-7">
+        <div class="input-group mb-3">
+            <span class="input-group-text bg-dark text-white"><i class="bi bi-upc-scan"></i></span>
+            <input type="text" id="scan" class="form-control" placeholder="Scan barcode here, then Enter — adds to cart" autofocus>
+        </div>
+        <input type="text" id="search" class="form-control mb-3" placeholder="🔍 Search product by name / SKU / barcode / model...">
+        <div class="row g-2 pos-products" id="product-grid">
+            @foreach ($products as $p)
+                <div class="col-6 col-md-4 col-xl-3 product-item"
+                     data-id="{{ $p->id }}" data-name="{{ $p->name }}" data-price="{{ $p->sale_price }}"
+                     data-stock="{{ $p->stock_quantity }}" data-barcode="{{ $p->barcode }}"
+                     data-search="{{ strtolower($p->name . ' ' . $p->sku . ' ' . $p->barcode . ' ' . $p->model) }}">
+                    <div class="card pos-card border h-100">
+                        <div class="ph">
+                            @if ($p->image_url)<img src="{{ $p->image_url }}" alt="">@else<i class="bi bi-box text-muted fs-2"></i>@endif
+                        </div>
+                        <div class="card-body p-2">
+                            <div class="small fw-semibold text-truncate-2" style="min-height:2.4em">{{ $p->name }}</div>
+                            <div class="d-flex justify-content-between align-items-center mt-1">
+                                <span class="text-primary fw-bold small">৳ {{ number_format($p->sale_price, 2) }}</span>
+                                <span class="badge bg-{{ $p->stock_quantity > 0 ? 'light text-dark' : 'danger' }} border">{{ $p->stock_quantity }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+
+    <!-- Cart -->
+    <div class="col-lg-5">
+        <form action="{{ route('admin.pos.store') }}" method="POST" id="pos-form">
+            @csrf
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <select name="customer_id" class="form-select form-select-sm">
+                        <option value="">Walk-in Customer</option>
+                        @foreach ($customers as $c)
+                            <option value="{{ $c->id }}">{{ $c->name }} @if($c->phone)({{ $c->phone }})@endif</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="cart-wrap">
+                    <table class="table table-sm mb-0 align-middle">
+                        <thead class="table-light"><tr><th>Item</th><th style="width:90px">Qty</th><th class="text-end">Total</th><th></th></tr></thead>
+                        <tbody id="cart-body">
+                            <tr id="cart-empty"><td colspan="4" class="text-center text-muted py-4">Click products to add</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-body border-top">
+                    <div class="row g-2 mb-2">
+                        <div class="col-6">
+                            <label class="form-label small mb-0">Discount</label>
+                            <input type="number" step="0.01" min="0" name="discount" id="discount" value="0" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small mb-0">Tax</label>
+                            <input type="number" step="0.01" min="0" name="tax" id="tax" value="0" class="form-control form-control-sm">
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between"><span class="text-muted">Subtotal</span><span id="t-subtotal">৳ 0.00</span></div>
+                    <div class="d-flex justify-content-between fw-bold fs-4 my-1"><span>Total</span><span id="t-total" data-total="0">৳ 0.00</span></div>
+                    <div class="row g-2 mt-1">
+                        <div class="col-6">
+                            <label class="form-label small mb-0">Payment</label>
+                            <select name="payment_method" class="form-select form-select-sm">
+                                <option value="cash">Cash</option>
+                                <option value="card">Card</option>
+                                <option value="mobile">Mobile</option>
+                                <option value="due">Due</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small mb-0">Paid</label>
+                            <input type="number" step="0.01" min="0" name="paid" id="paid" value="0" class="form-control form-control-sm">
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-2"><span class="text-muted">Change / Due</span><span id="t-change">৳ 0.00</span></div>
+                </div>
+                <div class="card-footer bg-white d-grid gap-2">
+                    <button class="btn btn-success btn-lg" id="checkout-btn"><i class="bi bi-check2-circle me-1"></i>Complete Sale</button>
+                    <button type="button" class="btn btn-outline-danger btn-sm" id="clear-cart">Clear Cart</button>
+                </div>
+            </div>
+            <div id="hidden-items"></div>
+        </form>
+    </div>
+</div>
+@endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const cart = {}; // id -> {name, price, qty, stock}
+    const body = document.getElementById('cart-body');
+    const empty = () => document.getElementById('cart-empty');
+
+    function fmt(n) { return '৳ ' + (Number(n) || 0).toFixed(2); }
+
+    function render() {
+        body.querySelectorAll('tr.cart-row').forEach(r => r.remove());
+        const ids = Object.keys(cart);
+        if (ids.length === 0) {
+            if (!empty()) body.insertAdjacentHTML('beforeend', '<tr id="cart-empty"><td colspan="4" class="text-center text-muted py-4">Click products to add</td></tr>');
+        } else if (empty()) {
+            empty().remove();
+        }
+        let subtotal = 0;
+        ids.forEach(id => {
+            const it = cart[id];
+            const line = it.price * it.qty;
+            subtotal += line;
+            const tr = document.createElement('tr');
+            tr.className = 'cart-row';
+            tr.innerHTML = `<td><div class="small fw-semibold">${it.name}</div><div class="text-muted" style="font-size:.72rem">${fmt(it.price)}</div></td>
+                <td><input type="number" min="1" max="${it.stock}" value="${it.qty}" data-id="${id}" class="form-control form-control-sm cart-qty"></td>
+                <td class="text-end">${fmt(line)}</td>
+                <td><button type="button" class="btn btn-sm text-danger p-0 cart-remove" data-id="${id}"><i class="bi bi-x-lg"></i></button></td>`;
+            body.appendChild(tr);
+        });
+        const discount = parseFloat(document.getElementById('discount').value) || 0;
+        const tax = parseFloat(document.getElementById('tax').value) || 0;
+        const total = Math.max(subtotal - discount + tax, 0);
+        document.getElementById('t-subtotal').textContent = fmt(subtotal);
+        const totalEl = document.getElementById('t-total');
+        totalEl.textContent = fmt(total);
+        totalEl.dataset.total = total;
+        const paid = parseFloat(document.getElementById('paid').value) || 0;
+        document.getElementById('t-change').textContent = fmt(paid - total);
+    }
+
+    function addToCart(id, name, price, stock) {
+        if (stock <= 0) { alert(name + ' is out of stock.'); return; }
+        if (cart[id]) {
+            if (cart[id].qty < stock) cart[id].qty++;
+            else { alert('Only ' + stock + ' in stock.'); }
+        } else {
+            cart[id] = { name, price: parseFloat(price), qty: 1, stock: parseInt(stock) };
+        }
+        render();
+    }
+
+    document.getElementById('product-grid').addEventListener('click', function (e) {
+        const item = e.target.closest('.product-item');
+        if (!item) return;
+        addToCart(item.dataset.id, item.dataset.name, item.dataset.price, item.dataset.stock);
+    });
+
+    body.addEventListener('input', function (e) {
+        if (e.target.classList.contains('cart-qty')) {
+            const id = e.target.dataset.id;
+            let v = parseInt(e.target.value) || 1;
+            if (v < 1) v = 1;
+            if (v > cart[id].stock) { v = cart[id].stock; alert('Only ' + cart[id].stock + ' in stock.'); }
+            cart[id].qty = v;
+            render();
+        }
+    });
+    body.addEventListener('click', function (e) {
+        const btn = e.target.closest('.cart-remove');
+        if (btn) { delete cart[btn.dataset.id]; render(); }
+    });
+
+    ['discount', 'tax', 'paid'].forEach(id => document.getElementById(id).addEventListener('input', render));
+
+    document.getElementById('clear-cart').addEventListener('click', function () {
+        Object.keys(cart).forEach(k => delete cart[k]);
+        render();
+    });
+
+    // Barcode scan: match by exact barcode (or SKU) and add to cart
+    const scan = document.getElementById('scan');
+    scan.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter') return;
+        e.preventDefault();
+        const code = this.value.trim();
+        if (!code) return;
+        const el = [...document.querySelectorAll('.product-item')].find(p =>
+            p.dataset.barcode === code || (p.dataset.search || '').split(' ').includes(code.toLowerCase()));
+        if (el) {
+            addToCart(el.dataset.id, el.dataset.name, el.dataset.price, el.dataset.stock);
+        } else {
+            alert('No product found for barcode: ' + code);
+        }
+        this.value = '';
+        this.focus();
+    });
+
+    // Search filter
+    document.getElementById('search').addEventListener('input', function () {
+        const q = this.value.toLowerCase().trim();
+        document.querySelectorAll('.product-item').forEach(el => {
+            el.style.display = el.dataset.search.includes(q) ? '' : 'none';
+        });
+    });
+
+    // Build hidden inputs on submit
+    document.getElementById('pos-form').addEventListener('submit', function (e) {
+        const ids = Object.keys(cart);
+        if (ids.length === 0) { e.preventDefault(); alert('Cart is empty.'); return; }
+        const wrap = document.getElementById('hidden-items');
+        wrap.innerHTML = '';
+        ids.forEach((id, i) => {
+            wrap.insertAdjacentHTML('beforeend',
+                `<input type="hidden" name="items[${i}][product_id]" value="${id}">
+                 <input type="hidden" name="items[${i}][quantity]" value="${cart[id].qty}">
+                 <input type="hidden" name="items[${i}][unit_price]" value="${cart[id].price}">`);
+        });
+    });
+});
+</script>
+@endpush
