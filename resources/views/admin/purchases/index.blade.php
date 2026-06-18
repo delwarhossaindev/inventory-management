@@ -11,6 +11,7 @@
             </div>
             <div class="col text-end">
                 <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-search"></i></button>
+                <a href="{{ route('admin.purchases.bulk') }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-upload"></i> Bulk Import</a>
                 <a href="{{ route('admin.purchases.create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-lg"></i> New Purchase</a>
             </div>
         </form>

@@ -29,6 +29,7 @@
                 <a href="{{ route('admin.products.index') }}" class="btn btn-sm btn-outline-secondary">Reset</a>
                 @can('view products')<a href="{{ route('admin.products.labels') }}" class="btn btn-sm btn-outline-dark"><i class="bi bi-upc"></i> Labels</a>@endcan
                 @can('edit products')<a href="{{ route('admin.products.bulk-pricing') }}" class="btn btn-sm btn-outline-success"><i class="bi bi-tags"></i> Bulk Pricing</a>@endcan
+                @can('create products')<a href="{{ route('admin.products.bulk-import') }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-upload"></i> Import</a>@endcan
                 @can('create products')<a href="{{ route('admin.products.create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-lg"></i> Add</a>@endcan
             </div>
         </form>

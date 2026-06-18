@@ -51,12 +51,17 @@
             @csrf
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white">
-                    <select name="customer_id" class="form-select form-select-sm">
-                        <option value="">Walk-in Customer</option>
-                        @foreach ($customers as $c)
-                            <option value="{{ $c->id }}">{{ $c->name }} @if($c->phone)({{ $c->phone }})@endif</option>
-                        @endforeach
-                    </select>
+                    <div class="input-group input-group-sm">
+                        <select name="customer_id" id="customer-select" class="form-select form-select-sm">
+                            <option value="">Walk-in Customer</option>
+                            @foreach ($customers as $c)
+                                <option value="{{ $c->id }}">{{ $c->name }} @if($c->phone)({{ $c->phone }})@endif</option>
+                            @endforeach
+                        </select>
+                        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#newCustomerModal" title="Add new customer">
+                            <i class="bi bi-person-plus"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="cart-wrap">
                     <table class="table table-sm mb-0 align-middle">
@@ -103,6 +108,35 @@
             </div>
             <div id="hidden-items"></div>
         </form>
+    </div>
+</div>
+
+<!-- Quick Add Customer -->
+<div class="modal fade" id="newCustomerModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-person-plus me-2"></i>New Customer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="customer-error" class="alert alert-danger py-2 d-none"></div>
+                <div class="mb-3">
+                    <label class="form-label">Name <span class="text-danger">*</span></label>
+                    <input type="text" id="cust-name" class="form-control" placeholder="Customer name">
+                </div>
+                <div class="mb-0">
+                    <label class="form-label">Phone</label>
+                    <input type="text" id="cust-phone" class="form-control" placeholder="Optional">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="save-customer" data-url="{{ route('admin.pos.customers.store') }}">
+                    <i class="bi bi-check-lg me-1"></i>Save & Select
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 @endsection
@@ -211,6 +245,38 @@ document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.product-item').forEach(el => {
             el.style.display = el.dataset.search.includes(q) ? '' : 'none';
         });
+    });
+
+    // Quick add customer (AJAX) → prepend to select and choose it
+    const saveCustBtn = document.getElementById('save-customer');
+    const token = document.querySelector('meta[name="csrf-token"]').content;
+    saveCustBtn.addEventListener('click', function () {
+        const name = document.getElementById('cust-name').value.trim();
+        const phone = document.getElementById('cust-phone').value.trim();
+        const err = document.getElementById('customer-error');
+        err.classList.add('d-none');
+        if (!name) { err.textContent = 'Name is required.'; err.classList.remove('d-none'); return; }
+
+        saveCustBtn.disabled = true;
+        fetch(this.dataset.url, {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': token, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({ name, phone }),
+        })
+        .then(r => r.ok ? r.json() : r.json().then(j => Promise.reject(j)))
+        .then(c => {
+            const sel = document.getElementById('customer-select');
+            const opt = new Option((c.phone ? c.name + ' (' + c.phone + ')' : c.name), c.id, true, true);
+            sel.add(opt, sel.options[1] || null);
+            document.getElementById('cust-name').value = '';
+            document.getElementById('cust-phone').value = '';
+            bootstrap.Modal.getInstance(document.getElementById('newCustomerModal')).hide();
+        })
+        .catch(j => {
+            err.textContent = (j && j.message) ? j.message : 'Could not save customer.';
+            err.classList.remove('d-none');
+        })
+        .finally(() => { saveCustBtn.disabled = false; });
     });
 
     // Build hidden inputs on submit

@@ -27,6 +27,23 @@ class PosController extends Controller
         ]);
     }
 
+    /** Quick-create a customer from the POS screen (returns JSON). */
+    public function storeCustomer(Request $request)
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:50'],
+        ]);
+
+        $customer = Customer::create($data + ['status' => 'active']);
+
+        return response()->json([
+            'id' => $customer->id,
+            'name' => $customer->name,
+            'phone' => $customer->phone,
+        ]);
+    }
+
     public function store(Request $request)
     {
         $data = $request->validate([

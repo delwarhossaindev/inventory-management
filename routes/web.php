@@ -34,6 +34,9 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('products/bulk-pricing', [ProductController::class, 'bulkPricing'])->name('products.bulk-pricing');
     Route::post('products/bulk-pricing', [ProductController::class, 'bulkPricingUpdate'])->name('products.bulk-pricing.update');
     Route::get('products/labels', [ProductController::class, 'labels'])->name('products.labels');
+    Route::get('products/bulk-import', [ProductController::class, 'bulkImport'])->name('products.bulk-import');
+    Route::post('products/bulk-import', [ProductController::class, 'bulkImportStore'])->name('products.bulk-import.store');
+    Route::get('products/import-template', [ProductController::class, 'importTemplate'])->name('products.import-template');
     Route::resource('products', ProductController::class);
 
     // Contacts
@@ -41,6 +44,9 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::resource('customers', CustomerController::class)->except('show');
 
     // Purchases (create/view/delete only — no edit to keep stock consistent)
+    Route::get('purchases/bulk', [PurchaseController::class, 'bulkCreate'])->name('purchases.bulk');
+    Route::post('purchases/bulk', [PurchaseController::class, 'bulkStore'])->name('purchases.bulk.store');
+    Route::get('purchases/import-template', [PurchaseController::class, 'importTemplate'])->name('purchases.import-template');
     Route::resource('purchases', PurchaseController::class)->only(['index', 'create', 'store', 'show', 'destroy']);
 
     // Sales (created via POS; managed here)
@@ -49,6 +55,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     // POS
     Route::get('pos', [PosController::class, 'index'])->name('pos.index');
     Route::post('pos', [PosController::class, 'store'])->name('pos.store');
+    Route::post('pos/customers', [PosController::class, 'storeCustomer'])->name('pos.customers.store');
 
     // Stock
     Route::get('stock', [StockController::class, 'index'])->name('stock.index');

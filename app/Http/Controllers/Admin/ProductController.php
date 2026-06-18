@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
+use App\Support\Spreadsheet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -14,7 +15,7 @@ class ProductController extends Controller
     public function __construct()
     {
         $this->middleware('permission:view products')->only(['index', 'show', 'labels']);
-        $this->middleware('permission:create products')->only(['create', 'store']);
+        $this->middleware('permission:create products')->only(['create', 'store', 'bulkImport', 'bulkImportStore', 'importTemplate']);
         $this->middleware('permission:edit products')->only(['edit', 'update', 'bulkPricing', 'bulkPricingUpdate']);
         $this->middleware('permission:delete products')->only(['destroy']);
     }
@@ -181,6 +182,177 @@ class ProductController extends Controller
             'mains' => Category::level(Category::LEVEL_MAIN)->orderBy('name')->get(),
             'copies' => max(1, min((int) $request->input('copies', 1), 50)),
         ]);
+    }
+
+    /** Columns understood by the bulk importer (matches the products.xlsx layout). */
+    private const IMPORT_COLUMNS = [
+        'Name', 'Model', 'SKU', 'Barcode', 'Main Category', 'Category', 'Sub Category', 'Status',
+        'Purchase Price', 'Sale Price', 'Stock', 'Alert Qty', 'Unit', 'Image URL',
+        'Short Description', 'Description', 'Advantages', 'Specifications',
+        'Meta Title', 'Meta Description', 'Gallery Images',
+    ];
+
+    public function bulkImport()
+    {
+        return view('admin.products.bulk-import', ['columns' => self::IMPORT_COLUMNS]);
+    }
+
+    public function importTemplate()
+    {
+        $headers = ['Content-Type' => 'text/csv', 'Content-Disposition' => 'attachment; filename="product-import-template.csv"'];
+
+        return response()->streamDownload(function () {
+            $out = fopen('php://output', 'w');
+            fwrite($out, "\xEF\xBB\xBF"); // UTF-8 BOM for Excel
+            fputcsv($out, self::IMPORT_COLUMNS);
+            // one example row
+            fputcsv($out, [
+                'Example Bur Handpiece', 'MDL-1', 'SKU-1', '', 'ENT Surgery', 'Surgical Power Device', 'Handpiece',
+                'active', '1000', '1500', '20', '5', 'pcs', 'https://example.com/image.jpg',
+                'Short text', '<p>Full description</p>', 'Key advantage', 'Spec list', 'Meta title', 'Meta description',
+                'https://example.com/g1.jpg, https://example.com/g2.jpg',
+            ]);
+            fclose($out);
+        }, 'product-import-template.csv', $headers);
+    }
+
+    public function bulkImportStore(Request $request)
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'max:10240'],
+        ]);
+
+        $file = $request->file('file');
+        $ext = strtolower($file->getClientOriginalExtension());
+        if (! in_array($ext, ['csv', 'txt', 'xlsx'], true)) {
+            return back()->withErrors(['file' => 'Please upload a CSV or XLSX file.']);
+        }
+
+        $rows = Spreadsheet::rows($file->getRealPath(), $ext);
+        if (count($rows) < 2) {
+            return back()->withErrors(['file' => 'The file has no data rows.']);
+        }
+
+        // Map header labels (normalized) to their column index.
+        $header = array_shift($rows);
+        $map = [];
+        foreach ($header as $idx => $label) {
+            $key = $this->normalizeHeader((string) $label);
+            if ($key) {
+                $map[$key] = $idx;
+            }
+        }
+        if (! isset($map['name'])) {
+            return back()->withErrors(['file' => 'A "Name" column is required.']);
+        }
+
+        $created = 0;
+        $skipped = 0;
+        $errors = [];
+
+        DB::transaction(function () use ($rows, $map, &$created, &$skipped, &$errors) {
+            foreach ($rows as $n => $row) {
+                $get = fn ($key) => isset($map[$key]) ? trim((string) ($row[$map[$key]] ?? '')) : '';
+
+                $name = $get('name');
+                if ($name === '') {
+                    $skipped++;
+                    continue;
+                }
+
+                try {
+                    $mainId = $this->importCategory($get('main_category'), Category::LEVEL_MAIN, null);
+                    $catId = $this->importCategory($get('category'), Category::LEVEL_CATEGORY, $mainId);
+                    $subId = $this->importCategory($get('sub_category'), Category::LEVEL_SUB, $catId);
+
+                    $gallery = collect(preg_split('/[,\n]+/', $get('gallery_images')))
+                        ->map(fn ($u) => trim($u))->filter()->values()->all();
+
+                    $product = Product::create([
+                        'name' => $name,
+                        'slug' => $this->uniqueSlug($get('slug') ?: $name),
+                        'model' => $get('model') ?: null,
+                        'sku' => $get('sku') ?: null,
+                        'barcode' => $get('barcode') ?: null,
+                        'main_category_id' => $mainId,
+                        'category_id' => $catId,
+                        'sub_category_id' => $subId,
+                        'status' => strtolower($get('status')) === 'inactive' ? 'inactive' : 'active',
+                        'purchase_price' => (float) ($get('purchase_price') ?: 0),
+                        'sale_price' => (float) ($get('sale_price') ?: 0),
+                        'alert_quantity' => (int) ($get('alert_quantity') ?: 0),
+                        'unit' => $get('unit') ?: 'pcs',
+                        'image_url' => $get('image_url') ?: null,
+                        'short_description' => $get('short_description') ?: null,
+                        'description' => $get('description') ?: null,
+                        'advantages' => $get('advantages') ?: null,
+                        'specifications' => $get('specifications') ?: null,
+                        'meta_title' => $get('meta_title') ?: null,
+                        'meta_description' => $get('meta_description') ?: null,
+                        'gallery_images' => $gallery ?: null,
+                    ]);
+                    $product->ensureBarcode();
+
+                    $opening = (int) ($get('stock') ?: 0);
+                    if ($opening > 0) {
+                        $product->stockIn($opening, (float) $product->purchase_price, 'adjustment', null, 'Bulk import opening stock');
+                    }
+
+                    $created++;
+                } catch (\Throwable $e) {
+                    $skipped++;
+                    if (count($errors) < 10) {
+                        $errors[] = 'Row ' . ($n + 2) . " ({$name}): " . $e->getMessage();
+                    }
+                }
+            }
+        });
+
+        return back()->with('import_result', compact('created', 'skipped', 'errors'));
+    }
+
+    /** Normalize a header label (e.g. "Main Category") to a known key (e.g. "main_category"). */
+    private function normalizeHeader(string $label): ?string
+    {
+        $key = strtolower(trim($label));
+        $aliases = [
+            'name' => 'name', 'slug' => 'slug', 'model' => 'model', 'sku' => 'sku', 'barcode' => 'barcode',
+            'main category' => 'main_category', 'category' => 'category', 'sub category' => 'sub_category',
+            'status' => 'status', 'purchase price' => 'purchase_price', 'sale price' => 'sale_price',
+            'stock' => 'stock', 'opening stock' => 'stock', 'alert qty' => 'alert_quantity', 'alert quantity' => 'alert_quantity',
+            'unit' => 'unit', 'image url' => 'image_url', 'short description' => 'short_description',
+            'description' => 'description', 'advantages' => 'advantages', 'specifications' => 'specifications',
+            'meta title' => 'meta_title', 'meta description' => 'meta_description', 'gallery images' => 'gallery_images',
+        ];
+
+        return $aliases[$key] ?? null;
+    }
+
+    /** Idempotently resolve/create a category at a level, returning its id (null when blank). */
+    private function importCategory(string $name, int $level, ?int $parentId): ?int
+    {
+        $name = trim($name);
+        if ($name === '') {
+            return null;
+        }
+
+        $category = Category::firstOrCreate(
+            ['name' => $name, 'level' => $level, 'parent_id' => $parentId],
+            ['slug' => $this->uniqueCategorySlug(Str::slug($name)), 'status' => 'active']
+        );
+
+        return $category->id;
+    }
+
+    private function uniqueCategorySlug(string $base): string
+    {
+        $slug = $base ?: 'category';
+        $i = 1;
+        while (Category::where('slug', $slug)->exists()) {
+            $slug = $base . '-' . $i++;
+        }
+
+        return $slug;
     }
 
     private function formData(Product $product): array

@@ -3,6 +3,15 @@
 @section('heading', 'Purchase ' . $purchase->invoice_no)
 
 @section('content')
+@if ($importErrors = session('import_errors'))
+    @if (count($importErrors))
+        <div class="alert alert-warning">
+            <strong>Skipped rows:</strong>
+            <ul class="mb-0 small">@foreach ($importErrors as $e)<li>{{ $e }}</li>@endforeach</ul>
+        </div>
+    @endif
+@endif
+
 <div class="d-flex justify-content-end gap-2 mb-3">
     <a href="{{ route('admin.purchases.index') }}" class="btn btn-sm btn-outline-secondary">Back</a>
     <button onclick="window.print()" class="btn btn-sm btn-outline-primary"><i class="bi bi-printer me-1"></i>Print</button>
