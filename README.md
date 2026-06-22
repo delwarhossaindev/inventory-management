@@ -1,8 +1,4 @@
-<p align="center">
-  <img src="https://img.icons8.com/3d-fluency/94/box.png" width="70" alt="Logo">
-</p>
-
-<h1 align="center">Inventory Management System</h1>
+<h1 align="center">📦 Inventory Management System</h1>
 
 <p align="center">
   A complete, production-ready inventory & POS solution built with Laravel 10
