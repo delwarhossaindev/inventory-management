@@ -30,6 +30,21 @@
     @endforeach
 </div>
 
+<div class="row g-3 mb-4">
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white fw-semibold"><i class="bi bi-graph-up me-1"></i>Sales — Last 7 Days</div>
+            <div class="card-body"><canvas id="salesChart" height="200"></canvas></div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white fw-semibold"><i class="bi bi-pie-chart me-1"></i>Top Categories</div>
+            <div class="card-body d-flex align-items-center justify-content-center"><canvas id="catChart" height="200"></canvas></div>
+        </div>
+    </div>
+</div>
+
 <div class="row g-3">
     <div class="col-lg-7">
         <div class="card border-0 shadow-sm">
@@ -81,3 +96,36 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+new Chart(document.getElementById('salesChart'), {
+    type: 'line',
+    data: {
+        labels: @json($chartLabels),
+        datasets: [{
+            label: 'Sales (৳)',
+            data: @json($chartData),
+            borderColor: '#0d6efd',
+            backgroundColor: 'rgba(13,110,253,.1)',
+            fill: true,
+            tension: .3,
+            pointRadius: 4,
+            pointBackgroundColor: '#0d6efd'
+        }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+});
+
+const pieColors = ['#0d6efd','#198754','#ffc107','#dc3545','#6f42c1','#0dcaf0'];
+new Chart(document.getElementById('catChart'), {
+    type: 'doughnut',
+    data: {
+        labels: @json($pieLabels),
+        datasets: [{ data: @json($pieData), backgroundColor: pieColors.slice(0, @json($pieLabels).length) }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 10 } } } }
+});
+</script>
+@endpush

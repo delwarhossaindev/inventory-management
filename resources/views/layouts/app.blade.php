@@ -58,7 +58,31 @@
     <div class="content">
         <header class="bg-white border-bottom px-4 py-3 d-flex justify-content-between align-items-center">
             <h5 class="mb-0">@yield('heading', 'Dashboard')</h5>
-            <span class="text-muted small">{{ auth()->user()->name ?? '' }}</span>
+            @php $initials = collect(explode(' ', auth()->user()->name ?? 'U'))->map(fn($w) => mb_strtoupper(mb_substr($w,0,1)))->take(2)->implode(''); @endphp
+            <div class="dropdown">
+                <a href="#" class="d-flex align-items-center gap-2 text-decoration-none dropdown-toggle" style="color:#374151" data-bs-toggle="dropdown">
+                    <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#0ea5e9);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.82rem;letter-spacing:.5px;box-shadow:0 2px 8px rgba(99,102,241,.35)">{{ $initials }}</div>
+                    <div class="d-none d-md-block" style="line-height:1.2">
+                        <div class="small fw-semibold">{{ auth()->user()->name ?? '' }}</div>
+                        <div style="font-size:.68rem;color:#9ca3af">{{ auth()->user()->roles->first()->name ?? 'User' }}</div>
+                    </div>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="min-width:200px">
+                    <li class="px-3 py-2 border-bottom">
+                        <div class="fw-semibold small">{{ auth()->user()->name }}</div>
+                        <div style="font-size:.72rem;color:#9ca3af">{{ auth()->user()->email }}</div>
+                    </li>
+                    <li><a class="dropdown-item py-2" href="{{ route('admin.profile.edit') }}"><i class="bi bi-person me-2 text-primary"></i>My Profile</a></li>
+                    <li><a class="dropdown-item py-2" href="{{ route('admin.profile.password') }}"><i class="bi bi-key me-2 text-warning"></i>Change Password</a></li>
+                    <li><hr class="dropdown-divider my-1"></li>
+                    <li>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button class="dropdown-item py-2 text-danger"><i class="bi bi-box-arrow-right me-2"></i>Logout</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
         </header>
 
         <main class="p-4">
@@ -115,5 +139,106 @@
 })();
 </script>
 @stack('scripts')
+<script>
+(function () {
+    // Find all pagination elements on the page
+    var paginations = document.querySelectorAll('.pagination');
+    if (!paginations.length) return;
+
+    paginations.forEach(function (pag) {
+        var wrapper = pag.closest('.card-footer, nav, .d-flex');
+        var card = pag.closest('.card') || (wrapper && wrapper.previousElementSibling);
+        if (!card || !card.querySelector) {
+            card = pag.parentElement && pag.parentElement.closest('.card');
+        }
+        if (!card) return;
+
+        var tbody = card.querySelector('tbody');
+        if (!tbody) return;
+
+        // Find next page link
+        var nextSel = '.page-item:not(.disabled) .page-link[rel="next"]';
+        var nextLink = pag.querySelector(nextSel);
+        if (!nextLink) {
+            // Hide pagination if on last page
+            if (wrapper) wrapper.style.display = 'none';
+            return;
+        }
+
+        var nextUrl = nextLink.getAttribute('href');
+        var loading = false;
+        var done = false;
+
+        // Hide traditional pagination
+        if (wrapper) wrapper.style.display = 'none';
+
+        // Create loading spinner
+        var spinner = document.createElement('div');
+        spinner.className = 'text-center py-3';
+        spinner.innerHTML = '<div class="spinner-border spinner-border-sm text-primary"></div><span class="ms-2 text-muted small">Loading more...</span>';
+        spinner.style.display = 'none';
+        card.appendChild(spinner);
+
+        function loadMore() {
+            if (loading || done || !nextUrl) return;
+            loading = true;
+            spinner.style.display = '';
+
+            fetch(nextUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(function (r) { return r.text(); })
+                .then(function (html) {
+                    var doc = new DOMParser().parseFromString(html, 'text/html');
+                    var rows = doc.querySelectorAll('tbody tr');
+
+                    // Animate new rows in
+                    rows.forEach(function (row) {
+                        var imported = document.importNode(row, true);
+                        imported.style.opacity = '0';
+                        imported.style.transform = 'translateY(10px)';
+                        imported.style.transition = 'opacity .3s ease, transform .3s ease';
+                        tbody.appendChild(imported);
+                        requestAnimationFrame(function () {
+                            requestAnimationFrame(function () {
+                                imported.style.opacity = '1';
+                                imported.style.transform = 'translateY(0)';
+                            });
+                        });
+                    });
+
+                    // Find next page in fetched HTML
+                    var newPag = doc.querySelector('.pagination');
+                    var newNext = newPag && newPag.querySelector('.page-item:not(.disabled) .page-link[rel="next"]');
+                    if (newNext) {
+                        nextUrl = newNext.getAttribute('href');
+                    } else {
+                        nextUrl = null;
+                        done = true;
+                    }
+
+                    loading = false;
+                    spinner.style.display = 'none';
+                })
+                .catch(function () {
+                    loading = false;
+                    spinner.style.display = 'none';
+                    done = true;
+                });
+        }
+
+        // Scroll detection
+        function checkScroll() {
+            if (done || loading) return;
+            var rect = card.getBoundingClientRect();
+            if (rect.bottom - window.innerHeight < 300) {
+                loadMore();
+            }
+        }
+
+        window.addEventListener('scroll', checkScroll, { passive: true });
+        // Initial check in case page is already scrolled / content is short
+        setTimeout(checkScroll, 500);
+    });
+})();
+</script>
 </body>
 </html>

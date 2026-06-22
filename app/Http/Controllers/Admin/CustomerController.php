@@ -49,6 +49,20 @@ class CustomerController extends Controller
         return redirect()->route('admin.customers.index')->with('success', 'Customer updated.');
     }
 
+    public function show(Customer $customer)
+    {
+        $sales = $customer->sales()->with('payments')->latest('sale_date')->get();
+
+        $totals = [
+            'sales' => $sales->count(),
+            'total' => $sales->sum('total'),
+            'paid' => $sales->sum('paid') + $sales->flatMap->payments->sum('amount'),
+            'due' => $sales->sum('due'),
+        ];
+
+        return view('admin.customers.show', compact('customer', 'sales', 'totals'));
+    }
+
     public function destroy(Customer $customer)
     {
         $customer->delete();

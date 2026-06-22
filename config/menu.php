@@ -31,8 +31,14 @@ return [
         'label' => 'Transactions',
         'collapsible' => true,
         'items' => [
+            ['label' => 'Quotations', 'icon' => 'bi-file-earmark-text', 'route' => 'admin.quotations.index', 'active' => 'admin.quotations.*', 'can' => 'access pos'],
             ['label' => 'Purchases', 'icon' => 'bi-bag-plus', 'route' => 'admin.purchases.index', 'active' => 'admin.purchases.*', 'can' => 'view purchases'],
             ['label' => 'Sales', 'icon' => 'bi-receipt', 'route' => 'admin.sales.index', 'active' => 'admin.sales.*', 'can' => 'view sales'],
+            ['label' => 'Returns', 'icon' => 'bi-arrow-return-left', 'route' => 'admin.returns.index', 'active' => 'admin.returns.*', 'can' => 'view sales'],
+            ['label' => 'Payments', 'icon' => 'bi-cash-stack', 'route' => 'admin.payments.index', 'active' => 'admin.payments.*', 'can' => 'view sales'],
+            ['label' => 'Expenses', 'icon' => 'bi-wallet2', 'route' => 'admin.expenses.index', 'active' => 'admin.expenses.*', 'can' => 'manage expenses'],
+            ['label' => 'Installments', 'icon' => 'bi-calendar2-check', 'route' => 'admin.installments.index', 'active' => 'admin.installments.*', 'can' => 'view sales'],
+            ['label' => 'Cash Register', 'icon' => 'bi-safe', 'route' => 'admin.cash-register.index', 'active' => 'admin.cash-register.*', 'can' => 'access pos'],
         ],
     ],
     [
@@ -44,6 +50,7 @@ return [
             ['label' => 'Top Products', 'icon' => 'bi-trophy', 'route' => 'admin.reports.products', 'can' => 'view reports'],
             ['label' => 'Purchases', 'icon' => 'bi-bag-check', 'route' => 'admin.reports.purchases', 'can' => 'view reports'],
             ['label' => 'Stock Valuation', 'icon' => 'bi-cash-stack', 'route' => 'admin.reports.stock', 'can' => 'view reports'],
+            ['label' => 'Profit & Loss', 'icon' => 'bi-bar-chart-line', 'route' => 'admin.reports.profit-loss', 'can' => 'view reports'],
         ],
     ],
     [
@@ -61,6 +68,17 @@ return [
             ['label' => 'Users', 'icon' => 'bi-person-gear', 'route' => 'admin.users.index', 'active' => 'admin.users.*', 'can' => 'manage users'],
             ['label' => 'Roles', 'icon' => 'bi-shield-lock', 'route' => 'admin.roles.index', 'active' => 'admin.roles.*', 'can' => 'manage roles'],
             ['label' => 'Permissions', 'icon' => 'bi-key', 'route' => 'admin.permissions.index', 'active' => 'admin.permissions.*', 'can' => 'manage permissions'],
+        ],
+    ],
+    [
+        'label' => 'Administration',
+        'collapsible' => true,
+        'items' => [
+            ['label' => 'Branches', 'icon' => 'bi-building', 'route' => 'admin.branches.index', 'can' => 'manage settings'],
+            ['label' => 'Login History', 'icon' => 'bi-person-check', 'route' => 'admin.login-history.index', 'can' => 'manage users'],
+            ['label' => 'Activity Log', 'icon' => 'bi-clock-history', 'route' => 'admin.activity-log.index', 'can' => 'manage settings'],
+            ['label' => 'Settings', 'icon' => 'bi-gear', 'route' => 'admin.settings.index', 'active' => 'admin.settings.*', 'can' => 'manage settings'],
+            ['label' => 'User Manual', 'icon' => 'bi-book', 'route' => 'admin.manual.index', 'active' => 'admin.manual.*'],
         ],
     ],
 ];

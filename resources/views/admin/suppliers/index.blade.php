@@ -28,6 +28,7 @@
                         <td>{{ $s->email ?: '—' }}</td>
                         <td><span class="badge bg-{{ $s->status === 'active' ? 'success' : 'secondary' }}">{{ ucfirst($s->status) }}</span></td>
                         <td class="text-end text-nowrap">
+                            <a href="{{ route('admin.suppliers.show', $s) }}" class="btn btn-sm btn-outline-success" title="Ledger"><i class="bi bi-journal-text"></i></a>
                             <a href="{{ route('admin.suppliers.edit', $s) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
                             <form action="{{ route('admin.suppliers.destroy', $s) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete supplier?')">
                                 @csrf @method('DELETE')

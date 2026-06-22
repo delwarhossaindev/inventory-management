@@ -20,6 +20,7 @@ class Product extends Model
         'sale_price',
         'stock_quantity',
         'alert_quantity',
+        'warranty_days',
         'unit',
         'main_category_id',
         'category_id',

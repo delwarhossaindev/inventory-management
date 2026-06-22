@@ -28,4 +28,20 @@ class Sale extends Model
     {
         return $this->hasMany(SaleItem::class);
     }
+
+    public function payments()
+    {
+        return $this->morphMany(Payment::class, 'payable');
+    }
+
+    public function returns()
+    {
+        return $this->hasMany(SaleReturn::class);
+    }
+
+    public function recalculateDue(): void
+    {
+        $totalPaid = $this->paid + $this->payments()->sum('amount');
+        $this->forceFill(['due' => max($this->total - $totalPaid, 0)])->saveQuietly();
+    }
 }

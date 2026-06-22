@@ -66,4 +66,63 @@
         @endif
     </div>
 </div>
+
+{{-- Payment History & Due Payment --}}
+@if ($purchase->payments->count() || $purchase->due > 0)
+<div class="card border-0 shadow-sm mt-3">
+    <div class="card-header bg-white fw-semibold"><i class="bi bi-cash-stack me-1"></i>Payments</div>
+    <div class="card-body">
+        @if ($purchase->payments->count())
+            <div class="table-responsive mb-3">
+                <table class="table table-sm mb-0">
+                    <thead class="table-light"><tr><th>Date</th><th>Method</th><th class="text-end">Amount</th><th>Note</th></tr></thead>
+                    <tbody>
+                        @foreach ($purchase->payments as $p)
+                            <tr>
+                                <td class="small">{{ $p->payment_date->format('d M Y') }}</td>
+                                <td class="small">{{ ucfirst($p->method) }}</td>
+                                <td class="text-end fw-semibold">@money($p->amount)</td>
+                                <td class="small text-muted">{{ $p->note ?: '—' }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+
+        @if ($purchase->due > 0)
+            <form action="{{ route('admin.purchases.payments.store', $purchase) }}" method="POST">
+                @csrf
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label small mb-0">Amount (Due: @money($purchase->due))</label>
+                        <input type="number" name="amount" step="0.01" min="0.01" max="{{ $purchase->due }}" value="{{ $purchase->due }}" class="form-control form-control-sm" required>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small mb-0">Method</label>
+                        <select name="method" class="form-select form-select-sm">
+                            <option value="cash">Cash</option>
+                            <option value="card">Card</option>
+                            <option value="mobile">Mobile</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small mb-0">Date</label>
+                        <input type="date" name="payment_date" value="{{ date('Y-m-d') }}" class="form-control form-control-sm" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small mb-0">Note</label>
+                        <input type="text" name="note" class="form-control form-control-sm" placeholder="Optional">
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-sm btn-success w-100"><i class="bi bi-plus-lg me-1"></i>Pay</button>
+                    </div>
+                </div>
+            </form>
+        @else
+            <div class="text-success small"><i class="bi bi-check-circle me-1"></i>Fully paid</div>
+        @endif
+    </div>
+</div>
+@endif
 @endsection

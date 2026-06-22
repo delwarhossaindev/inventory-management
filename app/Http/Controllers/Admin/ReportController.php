@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Expense;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\Sale;
+use App\Models\SaleReturn;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -166,6 +168,50 @@ class ReportController extends Controller
             'totals' => $totals,
             'from' => $from->toDateString(),
             'to' => $to->toDateString(),
+        ]);
+    }
+
+    public function profitLoss(Request $request)
+    {
+        [$from, $to] = $this->range($request);
+
+        $sales = Sale::whereBetween('sale_date', [$from, $to]);
+        $revenue = (clone $sales)->sum('total');
+        $salesCount = (clone $sales)->count();
+
+        $cogs = DB::table('sale_items')
+            ->join('sales', 'sales.id', '=', 'sale_items.sale_id')
+            ->whereBetween('sales.sale_date', [$from, $to])
+            ->sum('sale_items.cost_total');
+
+        $returns = SaleReturn::whereBetween('return_date', [$from, $to])->sum('total');
+
+        $purchases = Purchase::whereBetween('purchase_date', [$from, $to])->sum('total');
+
+        $expenses = Expense::whereBetween('expense_date', [$from, $to])->sum('amount');
+
+        $expenseByCategory = Expense::with('category')
+            ->whereBetween('expense_date', [$from, $to])
+            ->get()
+            ->groupBy(fn ($e) => optional($e->category)->name ?: 'Uncategorized')
+            ->map(fn ($g) => $g->sum('amount'))
+            ->sortDesc();
+
+        $grossProfit = $revenue - $cogs - $returns;
+        $netProfit = $grossProfit - $expenses;
+
+        return view('admin.reports.profit-loss', [
+            'from' => $from->toDateString(),
+            'to' => $to->toDateString(),
+            'revenue' => $revenue,
+            'salesCount' => $salesCount,
+            'cogs' => $cogs,
+            'returns' => $returns,
+            'grossProfit' => $grossProfit,
+            'expenses' => $expenses,
+            'expenseByCategory' => $expenseByCategory,
+            'purchases' => $purchases,
+            'netProfit' => $netProfit,
         ]);
     }
 

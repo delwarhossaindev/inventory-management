@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Product;
 use App\Models\Sale;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -31,9 +33,25 @@ class SaleController extends Controller
 
     public function show(Sale $sale)
     {
-        $sale->load(['customer', 'items.product']);
+        $sale->load(['customer', 'items.product', 'payments']);
 
         return view('admin.sales.show', compact('sale'));
+    }
+
+    public function invoice(Sale $sale)
+    {
+        $sale->load(['customer', 'items.product']);
+        $settings = Setting::getAll();
+
+        return view('admin.sales.invoice', compact('sale', 'settings'));
+    }
+
+    public function receipt(Sale $sale)
+    {
+        $sale->load(['customer', 'items.product']);
+        $settings = Setting::getAll();
+
+        return view('admin.sales.receipt', compact('sale', 'settings'));
     }
 
     public function destroy(Sale $sale)
@@ -51,7 +69,8 @@ class SaleController extends Controller
                 }
             }
 
-            $sale->delete(); // cascades sale_items
+            ActivityLog::log('sale_deleted', 'Deleted sale ' . $sale->invoice_no . ' — ৳' . number_format($sale->total, 2));
+            $sale->delete();
         });
 
         return redirect()->route('admin.sales.index')->with('success', 'Sale deleted and stock returned.');

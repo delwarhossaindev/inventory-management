@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\Supplier;
@@ -72,12 +73,14 @@ class PurchaseController extends Controller
             return $purchase;
         });
 
+        ActivityLog::log('purchase_created', 'Created purchase ' . $purchase->invoice_no . ' — ৳' . number_format($purchase->total, 2), $purchase);
+
         return redirect()->route('admin.purchases.show', $purchase)->with('success', 'Purchase recorded.');
     }
 
     public function show(Purchase $purchase)
     {
-        $purchase->load(['supplier', 'items.product']);
+        $purchase->load(['supplier', 'items.product', 'payments']);
 
         return view('admin.purchases.show', compact('purchase'));
     }

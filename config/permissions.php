@@ -20,6 +20,8 @@ return [
         'Users' => ['manage users'],
         'Roles' => ['manage roles', 'manage permissions'],
         'Reports' => ['view reports'],
+        'Expenses' => ['manage expenses'],
+        'Settings' => ['manage settings'],
     ],
 
     // 'Super Admin' is intentionally omitted — it bypasses all checks via Gate::before.
@@ -33,6 +35,7 @@ return [
             'view sales', 'delete sales',
             'access pos',
             'manage suppliers', 'manage customers',
+            'manage expenses', 'manage settings',
         ],
         'Storekeeper' => [
             'view products', 'create products', 'edit products',

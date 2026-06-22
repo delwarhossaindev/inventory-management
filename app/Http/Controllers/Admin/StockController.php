@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Product;
 use App\Models\StockMovement;
 use Illuminate\Http\Request;
@@ -70,6 +71,8 @@ class StockController extends Controller
                 $product->stockOut(-$delta, 'adjustment', null, $note);
             }
         });
+
+        ActivityLog::log('stock_adjusted', 'Adjusted stock for ' . $product->name, $product);
 
         return redirect()->route('admin.stock.index')->with('success', 'Stock adjusted for ' . $product->name . '.');
     }

@@ -70,6 +70,10 @@
                         <label class="form-label">Unit</label>
                         <input type="text" name="unit" value="{{ old('unit', $product->unit ?? 'pcs') }}" class="form-control" placeholder="pcs">
                     </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Warranty (days)</label>
+                        <input type="number" min="0" name="warranty_days" value="{{ old('warranty_days', $product->warranty_days) }}" class="form-control" placeholder="0 = no warranty">
+                    </div>
                 </div>
             </div>
         </div>

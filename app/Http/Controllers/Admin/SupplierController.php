@@ -50,6 +50,20 @@ class SupplierController extends Controller
         return redirect()->route('admin.suppliers.index')->with('success', 'Supplier updated.');
     }
 
+    public function show(Supplier $supplier)
+    {
+        $purchases = $supplier->purchases()->with('payments')->latest('purchase_date')->get();
+
+        $totals = [
+            'purchases' => $purchases->count(),
+            'total' => $purchases->sum('total'),
+            'paid' => $purchases->sum('paid') + $purchases->flatMap->payments->sum('amount'),
+            'due' => $purchases->sum('due'),
+        ];
+
+        return view('admin.suppliers.show', compact('supplier', 'purchases', 'totals'));
+    }
+
     public function destroy(Supplier $supplier)
     {
         $supplier->delete();

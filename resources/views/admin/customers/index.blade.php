@@ -27,6 +27,7 @@
                         <td>{{ $c->email ?: '—' }}</td>
                         <td><span class="badge bg-{{ $c->status === 'active' ? 'success' : 'secondary' }}">{{ ucfirst($c->status) }}</span></td>
                         <td class="text-end text-nowrap">
+                            <a href="{{ route('admin.customers.show', $c) }}" class="btn btn-sm btn-outline-success" title="Ledger"><i class="bi bi-journal-text"></i></a>
                             <a href="{{ route('admin.customers.edit', $c) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
                             <form action="{{ route('admin.customers.destroy', $c) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete customer?')">
                                 @csrf @method('DELETE')

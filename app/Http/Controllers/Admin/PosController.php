@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Sale;
@@ -107,7 +108,8 @@ class PosController extends Controller
             foreach ($lines as $line) {
                 // FIFO stock-out returns the cost of goods sold for this line.
                 $cogs = $line['product']->stockOut($line['data']['quantity'], 'sale', $sale, 'Sale ' . $sale->invoice_no);
-                $sale->items()->create($line['data'] + ['cost_total' => $cogs]);
+                $warrantyExpires = $line['product']->warranty_days ? now()->addDays($line['product']->warranty_days)->toDateString() : null;
+                $sale->items()->create($line['data'] + ['cost_total' => $cogs, 'warranty_expires' => $warrantyExpires]);
             }
 
             return $sale;
@@ -121,7 +123,9 @@ class PosController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.sales.show', $sale)->with('success', 'Sale completed: ' . $sale->invoice_no);
+        ActivityLog::log('sale_created', 'Created sale ' . $sale->invoice_no . ' — ৳' . number_format($sale->total, 2), $sale);
+
+        return redirect()->route('admin.sales.invoice', $sale)->with('success', 'Sale completed: ' . $sale->invoice_no);
     }
 
     private function nextInvoiceNo(): string
