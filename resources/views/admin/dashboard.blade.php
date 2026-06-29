@@ -5,7 +5,9 @@
 @push('styles')
 <style>
     .dash-title { font-size: 1.6rem; font-weight: 700; }
-    .stat-card { padding: 1.25rem; height: 100%; }
+    .stat-card { padding: 1.25rem; height: 100%; display: block; }
+    .stat-link { transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease; cursor: pointer; }
+    .stat-link:hover { transform: translateY(-3px); box-shadow: 0 10px 22px rgba(0,0,0,.08); border-color: var(--brand); }
     .stat-card .label { color: var(--muted); font-size: .85rem; }
     .stat-card .value { font-size: 1.6rem; font-weight: 700; margin-top: .35rem; }
     .stat-card .sub { color: var(--muted); font-size: .8rem; }
@@ -31,23 +33,23 @@
 {{-- ---------- Stat cards ---------- --}}
 @php
     $statCards = [
-        ['Total products', number_format($stats['products']), 'bi-box-seam', '#2563eb', 'rgba(37,99,235,.12)', $stats['categories'] . ' categories'],
-        ['Stock value', '৳ ' . number_format($stats['stock_value'], 0), 'bi-graph-up-arrow', '#16a34a', 'rgba(22,163,74,.12)', 'on-hand inventory'],
-        ['Today\'s sales', '৳ ' . number_format($stats['today_sales'], 0), 'bi-cash-coin', '#0ea5e9', 'rgba(14,165,233,.12)', $stats['today_sales_count'] . ' invoices today'],
-        ['Low stock', number_format($stats['low_stock']), 'bi-exclamation-triangle', '#f59e0b', 'rgba(245,158,11,.14)', 'items need restock'],
+        ['Total products', number_format($stats['products']), 'bi-box-seam', '#2563eb', 'rgba(37,99,235,.12)', $stats['categories'] . ' categories', route('admin.products.index')],
+        ['Stock value', '৳ ' . number_format($stats['stock_value'], 0), 'bi-graph-up-arrow', '#16a34a', 'rgba(22,163,74,.12)', 'on-hand inventory', route('admin.stock.index')],
+        ['Today\'s sales', '৳ ' . number_format($stats['today_sales'], 0), 'bi-cash-coin', '#0ea5e9', 'rgba(14,165,233,.12)', $stats['today_sales_count'] . ' invoices today', route('admin.sales.index')],
+        ['Low stock', number_format($stats['low_stock']), 'bi-exclamation-triangle', '#f59e0b', 'rgba(245,158,11,.14)', 'items need restock', route('admin.stock.index')],
     ];
 @endphp
 <div class="row g-3 mb-3">
-    @foreach ($statCards as [$label, $value, $icon, $color, $bg, $sub])
+    @foreach ($statCards as [$label, $value, $icon, $color, $bg, $sub, $url])
         <div class="col-6 col-xl-3">
-            <div class="card stat-card">
+            <a href="{{ $url }}" class="card stat-card stat-link text-decoration-none text-reset">
                 <div class="d-flex justify-content-between align-items-start">
                     <div class="label">{{ $label }}</div>
                     <span class="stat-icon" style="background:{{ $bg }};color:{{ $color }}"><i class="bi {{ $icon }}"></i></span>
                 </div>
                 <div class="value">{{ $value }}</div>
                 <div class="sub">{{ $sub }}</div>
-            </div>
+            </a>
         </div>
     @endforeach
 </div>

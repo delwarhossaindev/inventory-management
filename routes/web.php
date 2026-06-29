@@ -91,6 +91,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('payments', [PaymentController::class, 'index'])->name('payments.index');
     Route::post('sales/{sale}/payments', [PaymentController::class, 'storeSalePayment'])->name('sales.payments.store');
     Route::post('purchases/{purchase}/payments', [PaymentController::class, 'storePurchasePayment'])->name('purchases.payments.store');
+    Route::post('customers/{customer}/payments', [PaymentController::class, 'storeCustomerPayment'])->name('customers.payments.store');
 
     // Expenses
     Route::resource('expenses', ExpenseController::class)->only(['index', 'create', 'store', 'destroy']);

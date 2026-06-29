@@ -47,6 +47,43 @@
     </div>
 </div>
 
+@if ($totals['due'] > 0)
+<div class="card border-0 shadow-sm mb-3" id="collect">
+    <div class="card-header bg-white fw-semibold text-success"><i class="bi bi-cash-coin me-1"></i>Collect Payment (applied to oldest invoice first)</div>
+    <div class="card-body">
+        <form action="{{ route('admin.customers.payments.store', $customer) }}" method="POST">
+            @csrf
+            <div class="row g-2 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label small mb-0">Amount (Due: @money($totals['due']))</label>
+                    <input type="number" name="amount" step="0.01" min="0.01" max="{{ $totals['due'] }}" value="{{ $totals['due'] }}" class="form-control form-control-sm" required>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small mb-0">Method</label>
+                    <select name="method" class="form-select form-select-sm">
+                        <option value="cash">Cash</option>
+                        <option value="card">Card</option>
+                        <option value="mobile">Mobile</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small mb-0">Date</label>
+                    <input type="date" name="payment_date" value="{{ date('Y-m-d') }}" class="form-control form-control-sm" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small mb-0">Note</label>
+                    <input type="text" name="note" class="form-control form-control-sm" placeholder="Optional">
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-sm btn-success w-100"><i class="bi bi-cash me-1"></i>Collect</button>
+                </div>
+            </div>
+            <div class="form-text">This amount is split automatically across the customer's unpaid invoices, starting from the oldest.</div>
+        </form>
+    </div>
+</div>
+@endif
+
 <div class="card border-0 shadow-sm">
     <div class="card-header bg-white fw-semibold"><i class="bi bi-receipt me-1"></i>Sales History</div>
     <div class="table-responsive">

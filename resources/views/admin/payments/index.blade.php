@@ -32,17 +32,34 @@
     </div>
 </div>
 
-{{-- Outstanding sales (receivable) --}}
-@if ($dueSales->count())
+{{-- Outstanding sales (receivable) + search --}}
 <div class="card border-0 shadow-sm mb-3">
-    <div class="card-header bg-white fw-semibold text-success"><i class="bi bi-cash-coin me-1"></i>Outstanding — Collect from Customers</div>
+    <div class="card-header bg-white">
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <span class="fw-semibold text-success"><i class="bi bi-cash-coin me-1"></i>Outstanding — Collect from Customers</span>
+            <div class="ms-auto d-flex flex-wrap align-items-center gap-2">
+                @if ($dueCustomers->count())
+                    <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#custCollectModal">
+                        <i class="bi bi-person-check me-1"></i>Collect from Customer
+                    </button>
+                @endif
+                <form method="GET" id="due-search-form" style="min-width:240px; max-width:360px;">
+                    <input type="text" name="q" id="due-search" value="{{ $q }}" autocomplete="off" class="form-control form-control-sm"
+                           placeholder="Search customer or invoice no... (auto after 3 letters)">
+                </form>
+            </div>
+        </div>
+        @if (!empty($q))
+            <div class="form-text mt-1">Showing dues matching "<strong>{{ $q }}</strong>" — totals above reflect all outstanding.</div>
+        @endif
+    </div>
     <div class="table-responsive">
         <table class="table table-hover mb-0">
             <thead class="table-light">
                 <tr><th>Invoice</th><th>Customer</th><th>Date</th><th class="text-end">Total</th><th class="text-end">Due</th><th class="text-end">Action</th></tr>
             </thead>
             <tbody>
-                @foreach ($dueSales as $s)
+                @forelse ($dueSales as $s)
                     <tr>
                         <td><a href="{{ route('admin.sales.show', $s) }}" class="fw-semibold text-decoration-none">{{ $s->invoice_no }}</a></td>
                         <td class="small">{{ optional($s->customer)->name ?: 'Walk-in' }}</td>
@@ -51,12 +68,15 @@
                         <td class="text-end fw-semibold text-danger">@money($s->due)</td>
                         <td class="text-end"><a href="{{ route('admin.sales.show', $s) }}#collect" class="btn btn-sm btn-success"><i class="bi bi-cash me-1"></i>Collect</a></td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr><td colspan="6" class="text-center text-muted py-4">
+                        @if (!empty($q)) No dues match "<strong>{{ $q }}</strong>". @else No outstanding sales due 🎉 @endif
+                    </td></tr>
+                @endforelse
             </tbody>
         </table>
     </div>
 </div>
-@endif
 
 {{-- Outstanding purchases (payable) --}}
 @if ($duePurchases->count())
@@ -143,4 +163,119 @@
         <div class="card-footer bg-white">{{ $payments->links() }}</div>
     @endif
 </div>
+
+{{-- Customer-wise collection modal --}}
+@if ($dueCustomers->count())
+<div class="modal fade" id="custCollectModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form method="POST" id="cust-collect-form" action="#" onsubmit="return jmCustCollect(this);">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-person-check me-2 text-success"></i>Collect from a Customer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label small mb-1">Customer</label>
+                        <select id="cust-select" class="form-select form-select-sm" required>
+                            <option value="" data-due="0" data-url="">— Select customer —</option>
+                            @foreach ($dueCustomers as $c)
+                                <option value="{{ $c->id }}" data-due="{{ $c->due }}"
+                                        data-url="{{ route('admin.customers.payments.store', $c->id) }}">
+                                    {{ $c->name }}{{ $c->phone ? ' - ' . $c->phone : '' }} — Due ৳{{ number_format($c->due, 2) }} ({{ $c->count }} invoice)
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label class="form-label small mb-1">Amount</label>
+                            <input type="number" name="amount" id="cust-amount" step="0.01" min="0.01" class="form-control form-control-sm" placeholder="0.00" required disabled>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small mb-1">Method</label>
+                            <select name="method" class="form-select form-select-sm">
+                                <option value="cash">Cash</option>
+                                <option value="card">Card</option>
+                                <option value="mobile">Mobile</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small mb-1">Date</label>
+                            <input type="date" name="payment_date" value="{{ date('Y-m-d') }}" class="form-control form-control-sm" required>
+                        </div>
+                    </div>
+                    <input type="hidden" name="note" value="Customer payment">
+                    <div class="form-text mt-2" id="cust-hint">Pick a customer — the amount is split automatically across their unpaid invoices (oldest first).</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-sm btn-success" id="cust-collect-btn" disabled><i class="bi bi-cash me-1"></i>Collect</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endif
 @endsection
+
+@push('scripts')
+<script>
+(function () {
+    var input = document.getElementById('due-search');
+    var form = document.getElementById('due-search-form');
+    if (!input || !form) return;
+
+    // Keep cursor at the end after an auto-search reload.
+    input.focus();
+    input.setSelectionRange(input.value.length, input.value.length);
+
+    var timer;
+    input.addEventListener('input', function () {
+        clearTimeout(timer);
+        var len = input.value.trim().length;
+        // Auto-search once 3+ characters are typed, or when the box is cleared.
+        if (len >= 3 || len === 0) {
+            timer = setTimeout(function () { form.submit(); }, 400);
+        }
+    });
+})();
+
+// Customer-wise collection
+(function () {
+    var sel = document.getElementById('cust-select');
+    var amount = document.getElementById('cust-amount');
+    var btn = document.getElementById('cust-collect-btn');
+    var hint = document.getElementById('cust-hint');
+    if (!sel) return;
+
+    sel.addEventListener('change', function () {
+        var opt = sel.options[sel.selectedIndex];
+        var due = parseFloat(opt.getAttribute('data-due')) || 0;
+        if (sel.value) {
+            amount.disabled = false;
+            amount.max = due;
+            amount.value = due.toFixed(2);
+            btn.disabled = false;
+            hint.innerHTML = 'Max ৳' + due.toFixed(2) + ' — split oldest invoice first. Enter a smaller amount for partial payment.';
+        } else {
+            amount.disabled = true; amount.value = ''; btn.disabled = true;
+            hint.textContent = 'Pick a customer — the amount is split automatically across their unpaid invoices (oldest first).';
+        }
+    });
+})();
+
+function jmCustCollect(formEl) {
+    var sel = document.getElementById('cust-select');
+    var amount = document.getElementById('cust-amount');
+    var opt = sel.options[sel.selectedIndex];
+    var url = opt.getAttribute('data-url');
+    var due = parseFloat(opt.getAttribute('data-due')) || 0;
+    if (!sel.value || !url) { alert('Please select a customer.'); return false; }
+    if (parseFloat(amount.value) > due + 0.001) { alert('Amount cannot exceed the customer due (৳' + due.toFixed(2) + ').'); return false; }
+    formEl.action = url;   // post to /customers/{id}/payments
+    return true;
+}
+</script>
+@endpush
