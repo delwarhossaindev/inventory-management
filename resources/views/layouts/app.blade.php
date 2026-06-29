@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="light">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,31 +8,141 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <style>
-        body { background:#f4f6f9; }
-        .sidebar { width:250px; min-height:100vh; background:#1f2937; }
-        .sidebar a { color:#cbd5e1; text-decoration:none; }
-        .sidebar a.active, .sidebar a:hover { color:#fff; background:#374151; }
-        .sidebar .nav-link { border-radius:.4rem; padding:.6rem .9rem; margin-bottom:.2rem; }
-        .sidebar button.nav-link { width:100%; border:0; background:none; }
-        .sidebar button.nav-link:hover { color:#fff; }
-        .sidebar .bi-chevron-down { transition:transform .2s; }
-        .sidebar [aria-expanded="true"] .bi-chevron-down { transform:rotate(180deg); }
-        .content { flex:1; min-width:0; }
-        .table td, .table th { vertical-align:middle; }
+        :root {
+            --brand: #2563eb;
+            --brand-soft: rgba(37,99,235,.10);
+            --sidebar-w: 250px;
+        }
+        * { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+        [data-bs-theme="light"] {
+            --app-bg: #f7f8fa;
+            --panel-bg: #ffffff;
+            --border: #eceef1;
+            --muted: #8a93a2;
+            --heading: #111827;
+        }
+        [data-bs-theme="dark"] {
+            --app-bg: #0f1216;
+            --panel-bg: #171b21;
+            --border: #262b33;
+            --muted: #8b95a3;
+            --heading: #f3f4f6;
+            --brand-soft: rgba(59,130,246,.18);
+        }
+
+        body { background: var(--app-bg); color: var(--heading); }
+
+        /* ---------- Layout shell ---------- */
+        .app-shell { display: flex; min-height: 100vh; }
+
+        /* ---------- Sidebar ---------- */
+        .sidebar {
+            width: var(--sidebar-w); flex-shrink: 0;
+            background: var(--panel-bg);
+            border-right: 1px solid var(--border);
+            position: sticky; top: 0; height: 100vh;
+            display: flex; flex-direction: column;
+        }
+        .sidebar-brand {
+            display: flex; align-items: center; gap: .65rem;
+            padding: 1.1rem 1.25rem; border-bottom: 1px solid var(--border);
+        }
+        .sidebar-brand .logo-box {
+            width: 36px; height: 36px; border-radius: 9px; background: var(--brand);
+            display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.1rem;
+        }
+        .sidebar-brand .brand-logo { width: 38px; height: 38px; object-fit: contain; flex-shrink: 0; }
+        .sidebar-brand .brand-name { font-weight: 700; line-height: 1.1; color: var(--heading); }
+        .sidebar-brand .brand-sub { font-size: .72rem; color: var(--muted); }
+
+        .sidebar-nav { flex: 1; overflow-y: auto; padding: .75rem .75rem 1rem; }
+        .sidebar-nav::-webkit-scrollbar { width: 6px; }
+        .sidebar-nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        .nav-section-label {
+            font-size: .68rem; font-weight: 600; letter-spacing: .07em; text-transform: uppercase;
+            color: var(--muted); padding: .9rem .65rem .35rem;
+        }
+        .nav-section-toggle {
+            border: 0; background: transparent; border-radius: 8px; cursor: pointer;
+            transition: color .12s;
+        }
+        .nav-section-toggle:hover { color: var(--heading); }
+        .nav-section-toggle .chevron { font-size: .7rem; transition: transform .2s ease; }
+        .nav-section-toggle[aria-expanded="true"] .chevron { transform: rotate(180deg); }
+        .sidebar .nav-link {
+            display: flex; align-items: center; gap: .7rem;
+            color: #4b5563; font-size: .9rem; font-weight: 500;
+            padding: .55rem .65rem; border-radius: 8px; margin-bottom: 2px;
+            text-decoration: none; transition: background .12s, color .12s;
+        }
+        [data-bs-theme="dark"] .sidebar .nav-link { color: #c2c9d4; }
+        .sidebar .nav-link i { font-size: 1.05rem; width: 1.2rem; text-align: center; }
+        .sidebar .nav-link:hover { background: var(--app-bg); color: var(--heading); }
+        .sidebar .nav-link.active { background: var(--brand-soft); color: var(--brand); font-weight: 600; }
+
+        .sidebar-foot { padding: .75rem; border-top: 1px solid var(--border); }
+
+        /* ---------- Main column ---------- */
+        .main-col { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+        .topbar {
+            background: var(--panel-bg); border-bottom: 1px solid var(--border);
+            padding: .65rem 1.5rem; display: flex; align-items: center; gap: 1rem;
+            position: sticky; top: 0; z-index: 20;
+        }
+        .topbar-search { flex: 1; max-width: 360px; position: relative; }
+        .topbar-search i { position: absolute; left: .8rem; top: 50%; transform: translateY(-50%); color: var(--muted); }
+        .topbar-search input {
+            width: 100%; padding: .5rem .8rem .5rem 2.2rem; border-radius: 9px;
+            border: 1px solid var(--border); background: var(--app-bg); color: var(--heading); font-size: .88rem;
+        }
+        .topbar-search input:focus { outline: none; border-color: var(--brand); background: var(--panel-bg); }
+
+        .icon-btn {
+            width: 38px; height: 38px; border-radius: 9px; border: 1px solid var(--border);
+            background: transparent; color: var(--heading); display: inline-flex;
+            align-items: center; justify-content: center; position: relative;
+        }
+        .icon-btn:hover { background: var(--app-bg); }
+        .icon-btn .dot { position: absolute; top: 8px; right: 9px; width: 7px; height: 7px; border-radius: 50%; background: #ef4444; }
+
+        .avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--brand), #0ea5e9);
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-weight: 700; font-size: .8rem;
+        }
+
+        .content-area { padding: 1.5rem; }
+
+        /* ---------- Cards / tables shared ---------- */
+        .card { background: var(--panel-bg); border: 1px solid var(--border); border-radius: 12px; }
+        .card-header { background: var(--panel-bg); border-bottom: 1px solid var(--border); }
+        .table td, .table th { vertical-align: middle; }
         .text-truncate-2 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
 
-        /* Inventory page loader */
+        /* ---------- Page loader ---------- */
         .page-loader { position:fixed; inset:0; z-index:3000; display:flex; flex-direction:column;
-            align-items:center; justify-content:center; background:rgba(244,246,249,.9);
+            align-items:center; justify-content:center; background:rgba(247,248,250,.9);
             backdrop-filter:blur(2px); opacity:0; visibility:hidden; transition:opacity .2s ease; }
+        [data-bs-theme="dark"] .page-loader { background: rgba(15,18,22,.9); }
         .page-loader.active { opacity:1; visibility:visible; }
         .loader-box { position:relative; width:70px; height:70px; display:flex; align-items:center; justify-content:center; }
-        .loader-box .bi { font-size:1.7rem; color:#1f2937; animation:loader-bob 1s ease-in-out infinite; }
-        .loader-ring { position:absolute; inset:0; border:4px solid #d1d5db; border-top-color:#0d6efd;
+        .loader-box .bi { font-size:1.7rem; color:var(--brand); animation:loader-bob 1s ease-in-out infinite; }
+        .loader-ring { position:absolute; inset:0; border:4px solid var(--border); border-top-color:var(--brand);
             border-radius:50%; animation:loader-spin .8s linear infinite; }
-        .loader-text { margin-top:.8rem; font-weight:600; letter-spacing:.08em; color:#374151; font-size:.85rem; text-transform:uppercase; }
+        .loader-text { margin-top:.8rem; font-weight:600; letter-spacing:.08em; color:var(--muted); font-size:.85rem; text-transform:uppercase; }
         @keyframes loader-spin { to { transform:rotate(360deg); } }
         @keyframes loader-bob { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-5px); } }
+
+        @media (max-width: 991.98px) {
+            .sidebar { position: fixed; z-index: 1050; transform: translateX(-100%); transition: transform .2s; }
+            .sidebar.show { transform: translateX(0); }
+            .sidebar-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:1040; }
+            .sidebar-backdrop.show { display:block; }
+        }
     </style>
     @stack('styles')
 </head>
@@ -45,47 +155,77 @@
     <div class="loader-text">Loading…</div>
 </div>
 
-<div class="d-flex">
-    <aside class="sidebar text-white p-3 d-flex flex-column">
-        <h5 class="px-2 mb-4 fw-bold"><i class="bi bi-box-seam me-2"></i>Inventory</h5>
-        @include('layouts._nav')
-        <form method="POST" action="{{ route('logout') }}" class="mt-auto">
-            @csrf
-            <button class="btn btn-sm btn-outline-light w-100"><i class="bi bi-box-arrow-right me-2"></i>Logout</button>
-        </form>
+<div class="app-shell">
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    {{-- ---------- Sidebar ---------- --}}
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <img src="{{ asset('jm.png') }}" alt="Logo" class="brand-logo">
+            <div>
+                <div class="brand-name">{{ config('app.name', 'JM INTERNATIONAL') }}</div>
+                <div class="brand-sub">Inventory</div>
+            </div>
+        </div>
+
+        <div class="sidebar-nav">
+            @include('layouts._nav')
+        </div>
+
+        <div class="sidebar-foot">
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button class="btn btn-sm btn-outline-danger w-100"><i class="bi bi-box-arrow-right me-2"></i>Logout</button>
+            </form>
+        </div>
     </aside>
 
-    <div class="content">
-        <header class="bg-white border-bottom px-4 py-3 d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">@yield('heading', 'Dashboard')</h5>
-            @php $initials = collect(explode(' ', auth()->user()->name ?? 'U'))->map(fn($w) => mb_strtoupper(mb_substr($w,0,1)))->take(2)->implode(''); @endphp
-            <div class="dropdown">
-                <a href="#" class="d-flex align-items-center gap-2 text-decoration-none dropdown-toggle" style="color:#374151" data-bs-toggle="dropdown">
-                    <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#0ea5e9);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.82rem;letter-spacing:.5px;box-shadow:0 2px 8px rgba(99,102,241,.35)">{{ $initials }}</div>
-                    <div class="d-none d-md-block" style="line-height:1.2">
-                        <div class="small fw-semibold">{{ auth()->user()->name ?? '' }}</div>
-                        <div style="font-size:.68rem;color:#9ca3af">{{ auth()->user()->roles->first()->name ?? 'User' }}</div>
-                    </div>
+    {{-- ---------- Main column ---------- --}}
+    <div class="main-col">
+        <header class="topbar">
+            <button class="icon-btn d-lg-none" id="sidebarToggle"><i class="bi bi-list"></i></button>
+
+            <form class="topbar-search" method="GET" action="{{ route('admin.products.index') }}">
+                <i class="bi bi-search"></i>
+                <input type="text" name="q" value="{{ request('q') }}" placeholder="Search products, SKU, suppliers...">
+            </form>
+
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <button class="icon-btn" id="themeToggle" title="Toggle theme"><i class="bi bi-moon-stars"></i></button>
+                <a href="{{ Route::has('admin.stock.index') ? route('admin.stock.index') : '#' }}" class="icon-btn" title="Alerts">
+                    <i class="bi bi-bell"></i><span class="dot"></span>
                 </a>
-                <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="min-width:200px">
-                    <li class="px-3 py-2 border-bottom">
-                        <div class="fw-semibold small">{{ auth()->user()->name }}</div>
-                        <div style="font-size:.72rem;color:#9ca3af">{{ auth()->user()->email }}</div>
-                    </li>
-                    <li><a class="dropdown-item py-2" href="{{ route('admin.profile.edit') }}"><i class="bi bi-person me-2 text-primary"></i>My Profile</a></li>
-                    <li><a class="dropdown-item py-2" href="{{ route('admin.profile.password') }}"><i class="bi bi-key me-2 text-warning"></i>Change Password</a></li>
-                    <li><hr class="dropdown-divider my-1"></li>
-                    <li>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button class="dropdown-item py-2 text-danger"><i class="bi bi-box-arrow-right me-2"></i>Logout</button>
-                        </form>
-                    </li>
-                </ul>
+
+                @php $initials = collect(explode(' ', auth()->user()->name ?? 'U'))->map(fn($w) => mb_strtoupper(mb_substr($w,0,1)))->take(2)->implode(''); @endphp
+                <div class="dropdown">
+                    <a href="#" class="d-flex align-items-center gap-2 text-decoration-none" style="color:var(--heading)" data-bs-toggle="dropdown">
+                        <div class="avatar">{{ $initials }}</div>
+                        <div class="d-none d-md-block" style="line-height:1.2">
+                            <div class="small fw-semibold">{{ auth()->user()->name ?? '' }}</div>
+                            <div style="font-size:.7rem;color:var(--muted)">{{ auth()->user()->roles->first()->name ?? 'User' }}</div>
+                        </div>
+                        <i class="bi bi-chevron-down small d-none d-md-block" style="color:var(--muted)"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="min-width:210px">
+                        <li class="px-3 py-2 border-bottom">
+                            <div class="fw-semibold small">{{ auth()->user()->name }}</div>
+                            <div style="font-size:.72rem;color:var(--muted)">{{ auth()->user()->email }}</div>
+                        </li>
+                        <li><a class="dropdown-item py-2" href="{{ route('admin.profile.edit') }}"><i class="bi bi-person me-2 text-primary"></i>My Profile</a></li>
+                        <li><a class="dropdown-item py-2" href="{{ route('admin.profile.password') }}"><i class="bi bi-key me-2 text-warning"></i>Change Password</a></li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button class="dropdown-item py-2 text-danger"><i class="bi bi-box-arrow-right me-2"></i>Logout</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </header>
 
-        <main class="p-4">
+        <main class="content-area">
             @if (session('success'))
                 <div class="alert alert-success alert-dismissible fade show">
                     {{ session('success') }}
@@ -109,6 +249,47 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Theme toggle (persisted)
+(function () {
+    var html = document.documentElement;
+    var btn = document.getElementById('themeToggle');
+    var saved = localStorage.getItem('app-theme');
+    if (saved) html.setAttribute('data-bs-theme', saved);
+    function syncIcon() {
+        var dark = html.getAttribute('data-bs-theme') === 'dark';
+        btn.querySelector('i').className = dark ? 'bi bi-sun' : 'bi bi-moon-stars';
+    }
+    syncIcon();
+    btn.addEventListener('click', function () {
+        var next = html.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-bs-theme', next);
+        localStorage.setItem('app-theme', next);
+        syncIcon();
+    });
+})();
+
+// Mobile sidebar
+(function () {
+    var sb = document.getElementById('sidebar');
+    var bd = document.getElementById('sidebarBackdrop');
+    var tg = document.getElementById('sidebarToggle');
+    function toggle() { sb.classList.toggle('show'); bd.classList.toggle('show'); }
+    if (tg) tg.addEventListener('click', toggle);
+    if (bd) bd.addEventListener('click', toggle);
+})();
+
+// Auto-scroll the active menu item into view inside the sidebar
+(function () {
+    var nav = document.querySelector('.sidebar-nav');
+    var active = nav && nav.querySelector('.nav-link.active');
+    if (!nav || !active) return;
+    // Center the active item within the sidebar's scroll area (no page jump).
+    var offset = active.offsetTop - (nav.clientHeight / 2) + (active.offsetHeight / 2);
+    nav.scrollTop = Math.max(0, offset);
+})();
+</script>
+
 <script>
 (function () {
     var loader = document.getElementById('page-loader');

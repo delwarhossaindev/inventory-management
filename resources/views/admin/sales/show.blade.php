@@ -6,7 +6,8 @@
 <div class="d-flex justify-content-end gap-2 mb-3">
     <a href="{{ route('admin.sales.index') }}" class="btn btn-sm btn-outline-secondary">Back</a>
     <a href="{{ route('admin.pos.index') }}" class="btn btn-sm btn-success"><i class="bi bi-cart-check me-1"></i>New Sale</a>
-    <a href="{{ route('admin.sales.invoice', $sale) }}" class="btn btn-sm btn-primary" target="_blank"><i class="bi bi-printer me-1"></i>Print Invoice</a>
+    <a href="{{ route('admin.sales.invoice', $sale) }}" class="btn btn-sm btn-primary" target="_blank"><i class="bi bi-file-pdf me-1"></i>Invoice PDF</a>
+    <a href="{{ route('admin.sales.invoice', ['sale' => $sale, 'download' => 1]) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-download me-1"></i>Download</a>
     <a href="{{ route('admin.sales.receipt', $sale) }}" class="btn btn-sm btn-outline-info" target="_blank"><i class="bi bi-receipt me-1"></i>Thermal Receipt</a>
     @if ($sale->customer_id)
         <a href="{{ route('admin.installments.create', $sale) }}" class="btn btn-sm btn-outline-warning"><i class="bi bi-calendar2-check me-1"></i>EMI</a>
@@ -79,7 +80,7 @@
 
 {{-- Payment History & Due Collection --}}
 @if ($sale->payments->count() || $sale->due > 0)
-<div class="card border-0 shadow-sm mt-3">
+<div class="card border-0 shadow-sm mt-3" id="collect">
     <div class="card-header bg-white fw-semibold"><i class="bi bi-cash-stack me-1"></i>Payments</div>
     <div class="card-body">
         @if ($sale->payments->count())

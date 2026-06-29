@@ -9,6 +9,7 @@ use App\Models\Purchase;
 use App\Models\Sale;
 use App\Models\SaleReturn;
 use App\Models\Supplier;
+use App\Support\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -40,6 +41,27 @@ class ReportController extends Controller
             'collected' => $sales->sum('total'),
             'due' => $sales->sum('due'),
         ];
+
+        if ($request->boolean('pdf')) {
+            return $this->reportPdf(
+                'Sales Report',
+                $from->format('d M Y') . ' — ' . $to->format('d M Y'),
+                ['Date', 'Invoice', 'Customer', 'Revenue', 'COGS', 'Profit', 'Collected', 'Due'],
+                ['left', 'left', 'left', 'right', 'right', 'right', 'right', 'right'],
+                $sales->map(fn ($s) => [
+                    $s->sale_date?->format('d-m-Y'),
+                    $s->invoice_no,
+                    optional($s->customer)->name ?: 'Walk-in',
+                    $this->money($s->revenue),
+                    $this->money($s->cogs),
+                    $this->money($s->revenue - $s->cogs),
+                    $this->money($s->total),
+                    $this->money($s->due),
+                ])->all(),
+                [$totals['count'] . ' sales', '', 'Totals', $this->money($totals['revenue']), $this->money($totals['cogs']),
+                    $this->money($totals['profit']), $this->money($totals['collected']), $this->money($totals['due'])],
+            );
+        }
 
         return view('admin.reports.sales', [
             'sales' => $sales,
@@ -75,6 +97,24 @@ class ReportController extends Controller
             'retail' => $products->sum(fn ($p) => $p->stock_quantity * $p->sale_price),
         ];
 
+        if ($request->boolean('pdf')) {
+            return $this->reportPdf(
+                'Stock Valuation Report',
+                null,
+                ['Product', 'Unit', 'Stock Qty', 'Stock Value', 'Retail Value'],
+                ['left', 'left', 'right', 'right', 'right'],
+                $products->map(fn ($p) => [
+                    $p->name,
+                    $p->unit,
+                    $p->stock_quantity,
+                    $this->money($p->stock_value),
+                    $this->money($p->stock_quantity * $p->sale_price),
+                ])->all(),
+                ['Totals (' . $totals['products'] . ' products)', '', $totals['units'],
+                    $this->money($totals['value']), $this->money($totals['retail'])],
+            );
+        }
+
         return view('admin.reports.stock', compact('products', 'totals'));
     }
 
@@ -94,6 +134,25 @@ class ReportController extends Controller
             'paid' => $purchases->sum('paid'),
             'due' => $purchases->sum('due'),
         ];
+
+        if ($request->boolean('pdf')) {
+            return $this->reportPdf(
+                'Purchases Report',
+                $from->format('d M Y') . ' — ' . $to->format('d M Y'),
+                ['Date', 'Invoice', 'Supplier', 'Total', 'Paid', 'Due'],
+                ['left', 'left', 'left', 'right', 'right', 'right'],
+                $purchases->map(fn ($p) => [
+                    $p->purchase_date?->format('d-m-Y'),
+                    $p->invoice_no,
+                    optional($p->supplier)->name ?: '—',
+                    $this->money($p->total),
+                    $this->money($p->paid),
+                    $this->money($p->due),
+                ])->all(),
+                [$totals['count'] . ' purchases', '', 'Totals',
+                    $this->money($totals['total']), $this->money($totals['paid']), $this->money($totals['due'])],
+            );
+        }
 
         return view('admin.reports.purchases', [
             'purchases' => $purchases,
@@ -129,6 +188,24 @@ class ReportController extends Controller
             'profit' => $rows->sum('revenue') - $rows->sum('cogs'),
         ];
 
+        if ($request->boolean('pdf')) {
+            return $this->reportPdf(
+                'Top Products Report',
+                $from->format('d M Y') . ' — ' . $to->format('d M Y'),
+                ['Product', 'Qty Sold', 'Revenue', 'COGS', 'Profit'],
+                ['left', 'right', 'right', 'right', 'right'],
+                $rows->map(fn ($r) => [
+                    $r->name,
+                    $r->qty,
+                    $this->money($r->revenue),
+                    $this->money($r->cogs),
+                    $this->money($r->revenue - $r->cogs),
+                ])->all(),
+                ['Totals', $totals['qty'], $this->money($totals['revenue']),
+                    $this->money($totals['cogs']), $this->money($totals['profit'])],
+            );
+        }
+
         return view('admin.reports.products', [
             'rows' => $rows,
             'totals' => $totals,
@@ -162,6 +239,24 @@ class ReportController extends Controller
             'profit' => $sales->sum('revenue') - $sales->sum('cogs'),
             'collected' => $sales->sum('total'),
         ];
+
+        if ($request->boolean('pdf')) {
+            return $this->reportPdf(
+                'Daily Summary Report',
+                $from->format('d M Y') . ' — ' . $to->format('d M Y'),
+                ['Date', 'Sales', 'Revenue', 'Profit', 'Collected'],
+                ['left', 'right', 'right', 'right', 'right'],
+                $days->map(fn ($d, $date) => [
+                    \Illuminate\Support\Carbon::parse($date)->format('d-m-Y'),
+                    $d['count'],
+                    $this->money($d['revenue']),
+                    $this->money($d['profit']),
+                    $this->money($d['collected']),
+                ])->values()->all(),
+                ['Totals', $totals['count'], $this->money($totals['revenue']),
+                    $this->money($totals['profit']), $this->money($totals['collected'])],
+            );
+        }
 
         return view('admin.reports.daily', [
             'days' => $days,
@@ -200,6 +295,29 @@ class ReportController extends Controller
         $grossProfit = $revenue - $cogs - $returns;
         $netProfit = $grossProfit - $expenses;
 
+        if ($request->boolean('pdf')) {
+            $rows = [
+                ['Sales Revenue (' . $salesCount . ' sales)', $this->money($revenue)],
+                ['Less: Cost of Goods Sold', '(' . $this->money($cogs) . ')'],
+                ['Less: Sale Returns', '(' . $this->money($returns) . ')'],
+                ['<b>Gross Profit</b>', '<b>' . $this->money($grossProfit) . '</b>'],
+            ];
+            foreach ($expenseByCategory as $cat => $amt) {
+                $rows[] = ['Expense: ' . $cat, '(' . $this->money($amt) . ')'];
+            }
+            $rows[] = ['<b>Total Expenses</b>', '<b>(' . $this->money($expenses) . ')</b>'];
+            $rows[] = ['Purchases (info)', $this->money($purchases)];
+
+            return $this->reportPdf(
+                'Profit & Loss Report',
+                $from->format('d M Y') . ' — ' . $to->format('d M Y'),
+                ['Description', 'Amount'],
+                ['left', 'right'],
+                $rows,
+                ['Net Profit', $this->money($netProfit)],
+            );
+        }
+
         return view('admin.reports.profit-loss', [
             'from' => $from->toDateString(),
             'to' => $to->toDateString(),
@@ -213,6 +331,22 @@ class ReportController extends Controller
             'purchases' => $purchases,
             'netProfit' => $netProfit,
         ]);
+    }
+
+    /** Render a generic report table as a PDF. */
+    private function reportPdf(string $title, ?string $period, array $head, array $align, array $rows, ?array $foot = null)
+    {
+        return Pdf::render(
+            'pdf.report',
+            compact('title', 'period', 'head', 'align', 'rows', 'foot'),
+            str_replace(' ', '-', $title) . '.pdf',
+            request()->boolean('download'),
+        );
+    }
+
+    private function money($v): string
+    {
+        return number_format((float) $v, 2);
     }
 
     /** Resolve a [from, to] date range from the request, defaulting to the current month. */

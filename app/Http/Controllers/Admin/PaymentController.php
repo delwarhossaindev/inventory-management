@@ -26,8 +26,15 @@ class PaymentController extends Controller
             }
         }
 
+        $dueSales = Sale::with('customer')->where('due', '>', 0)->latest('sale_date')->get();
+        $duePurchases = Purchase::with('supplier')->where('due', '>', 0)->latest('purchase_date')->get();
+
         return view('admin.payments.index', [
             'payments' => $query->paginate(20)->withQueryString(),
+            'dueSales' => $dueSales,
+            'duePurchases' => $duePurchases,
+            'receivable' => $dueSales->sum('due'),
+            'payable' => $duePurchases->sum('due'),
         ]);
     }
 

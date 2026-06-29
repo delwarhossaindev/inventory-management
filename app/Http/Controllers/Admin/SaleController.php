@@ -7,6 +7,7 @@ use App\Models\ActivityLog;
 use App\Models\Product;
 use App\Models\Sale;
 use App\Models\Setting;
+use App\Support\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -38,12 +39,17 @@ class SaleController extends Controller
         return view('admin.sales.show', compact('sale'));
     }
 
-    public function invoice(Sale $sale)
+    public function invoice(Sale $sale, Request $request)
     {
         $sale->load(['customer', 'items.product']);
         $settings = Setting::getAll();
 
-        return view('admin.sales.invoice', compact('sale', 'settings'));
+        return Pdf::render(
+            'pdf.invoice',
+            compact('sale', 'settings'),
+            'Invoice-' . $sale->invoice_no . '.pdf',
+            $request->boolean('download'),
+        );
     }
 
     public function receipt(Sale $sale)

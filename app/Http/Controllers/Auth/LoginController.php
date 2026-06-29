@@ -33,7 +33,12 @@ class LoginController extends Controller
             ]);
             ActivityLog::log('login', 'User logged in');
 
-            return redirect()->intended(route('admin.dashboard'));
+            // Send users straight to POS when they can use it; otherwise the dashboard.
+            $home = Auth::user()->can('access pos')
+                ? route('admin.pos.index')
+                : route('admin.dashboard');
+
+            return redirect()->intended($home);
         }
 
         return back()

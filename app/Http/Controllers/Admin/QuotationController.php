@@ -7,6 +7,7 @@ use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Quotation;
 use App\Models\Setting;
+use App\Support\Pdf;
 use Illuminate\Http\Request;
 
 class QuotationController extends Controller
@@ -84,6 +85,19 @@ class QuotationController extends Controller
         $settings = Setting::getAll();
 
         return view('admin.quotations.show', compact('quotation', 'settings'));
+    }
+
+    public function pdf(Quotation $quotation, Request $request)
+    {
+        $quotation->load(['customer', 'items.product']);
+        $settings = Setting::getAll();
+
+        return Pdf::render(
+            'pdf.quotation',
+            compact('quotation', 'settings'),
+            'Quotation-' . $quotation->quote_no . '.pdf',
+            $request->boolean('download'),
+        );
     }
 
     public function destroy(Quotation $quotation)

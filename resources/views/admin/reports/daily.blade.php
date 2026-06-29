@@ -16,6 +16,7 @@
             </div>
             <div class="col-auto">
                 <button class="btn btn-sm btn-primary"><i class="bi bi-funnel me-1"></i>Apply</button>
+                <a href="{{ request()->fullUrlWithQuery(['pdf' => 1]) }}" target="_blank" class="btn btn-sm btn-danger"><i class="bi bi-file-pdf me-1"></i>PDF</a>
                 <button type="button" onclick="window.print()" class="btn btn-sm btn-outline-secondary"><i class="bi bi-printer"></i></button>
             </div>
         </form>

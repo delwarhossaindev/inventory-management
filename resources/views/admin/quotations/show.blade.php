@@ -5,7 +5,8 @@
 @section('content')
 <div class="d-flex justify-content-end gap-2 mb-3">
     <a href="{{ route('admin.quotations.index') }}" class="btn btn-sm btn-outline-secondary">Back</a>
-    <button onclick="window.print()" class="btn btn-sm btn-outline-primary"><i class="bi bi-printer me-1"></i>Print</button>
+    <a href="{{ route('admin.quotations.pdf', $quotation) }}" target="_blank" class="btn btn-sm btn-primary"><i class="bi bi-file-pdf me-1"></i>PDF</a>
+    <a href="{{ route('admin.quotations.pdf', ['quotation' => $quotation, 'download' => 1]) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-download me-1"></i>Download</a>
 </div>
 
 <div class="card border-0 shadow-sm">

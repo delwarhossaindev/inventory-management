@@ -27,6 +27,7 @@
                         </td>
                         <td class="text-nowrap">
                             <a href="{{ route('admin.quotations.show', $q) }}" class="btn btn-sm btn-outline-secondary p-0 px-1"><i class="bi bi-eye"></i></a>
+                            <a href="{{ route('admin.quotations.pdf', $q) }}" target="_blank" class="btn btn-sm btn-outline-primary p-0 px-1" title="PDF"><i class="bi bi-file-pdf"></i></a>
                             <form action="{{ route('admin.quotations.destroy', $q) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete?')">
                                 @csrf @method('DELETE')
                                 <button class="btn btn-sm btn-outline-danger p-0 px-1"><i class="bi bi-trash"></i></button>

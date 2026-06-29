@@ -10,6 +10,7 @@
             <label for="low" class="form-check-label small">Low stock only</label>
         </div>
     </form>
+    <a href="{{ request()->fullUrlWithQuery(['pdf' => 1]) }}" target="_blank" class="btn btn-sm btn-danger"><i class="bi bi-file-pdf me-1"></i>PDF</a>
     <button onclick="window.print()" class="btn btn-sm btn-outline-secondary"><i class="bi bi-printer me-1"></i>Print</button>
 </div>
 

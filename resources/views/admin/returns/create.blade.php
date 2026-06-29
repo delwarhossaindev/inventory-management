@@ -50,6 +50,8 @@
                             <th><input type="checkbox" id="check-all"></th>
                             <th>Product</th>
                             <th class="text-end">Sold Qty</th>
+                            <th class="text-end">Returned</th>
+                            <th class="text-end">Returnable</th>
                             <th class="text-end">Unit Price</th>
                             <th style="width:120px">Return Qty</th>
                             <th class="text-end">Refund</th>
@@ -57,15 +59,24 @@
                     </thead>
                     <tbody>
                         @foreach ($sale->items as $i => $item)
-                            <tr class="return-row">
-                                <td><input type="checkbox" class="item-check" data-index="{{ $i }}"></td>
-                                <td>{{ optional($item->product)->name ?: 'Deleted product' }}</td>
+                            @php
+                                $alreadyReturned = (int) ($returnedByProduct[$item->product_id] ?? 0);
+                                $returnable = max($item->quantity - $alreadyReturned, 0);
+                            @endphp
+                            <tr class="return-row {{ $returnable <= 0 ? 'table-secondary' : '' }}">
+                                <td><input type="checkbox" class="item-check" data-index="{{ $i }}" {{ $returnable <= 0 ? 'disabled' : '' }}></td>
+                                <td>
+                                    {{ optional($item->product)->name ?: 'Deleted product' }}
+                                    @if ($returnable <= 0)<span class="badge bg-secondary ms-1">Fully returned</span>@endif
+                                </td>
                                 <td class="text-end">{{ $item->quantity }}</td>
+                                <td class="text-end text-muted">{{ $alreadyReturned ?: '—' }}</td>
+                                <td class="text-end fw-semibold">{{ $returnable }}</td>
                                 <td class="text-end">@money($item->unit_price)</td>
                                 <td>
-                                    <input type="number" min="0" max="{{ $item->quantity }}" value="0"
+                                    <input type="number" min="0" max="{{ $returnable }}" value="0"
                                            class="form-control form-control-sm return-qty" data-index="{{ $i }}"
-                                           data-price="{{ $item->unit_price }}" data-max="{{ $item->quantity }}" disabled>
+                                           data-price="{{ $item->unit_price }}" data-max="{{ $returnable }}" disabled>
                                     <input type="hidden" name="items[{{ $i }}][product_id]" value="{{ $item->product_id }}" disabled>
                                     <input type="hidden" name="items[{{ $i }}][quantity]" value="0" class="hidden-qty" disabled>
                                     <input type="hidden" name="items[{{ $i }}][unit_price]" value="{{ $item->unit_price }}" disabled>
@@ -76,7 +87,7 @@
                     </tbody>
                     <tfoot class="table-light">
                         <tr>
-                            <td colspan="5" class="text-end fw-bold">Total Refund</td>
+                            <td colspan="7" class="text-end fw-bold">Total Refund</td>
                             <td class="text-end fw-bold text-danger" id="total-refund">৳ 0.00</td>
                         </tr>
                     </tfoot>
@@ -131,7 +142,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     checkAll.addEventListener('change', function () {
-        rows.forEach(row => { row.querySelector('.item-check').checked = this.checked; });
+        rows.forEach(row => {
+            const check = row.querySelector('.item-check');
+            if (!check.disabled) check.checked = this.checked;   // skip fully-returned rows
+        });
         update();
     });
 

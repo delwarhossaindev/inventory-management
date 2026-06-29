@@ -15,7 +15,7 @@
     })->filter(fn ($section) => $section['items']->isNotEmpty())->values();
 @endphp
 
-<nav class="nav flex-column flex-grow-1 overflow-auto">
+<nav class="nav flex-column">
     @foreach ($visible as $i => $section)
         @php $sectionActive = $section['items']->contains('is_active', true); @endphp
 
@@ -24,18 +24,13 @@
             @foreach ($section['items'] as $item)
                 @include('layouts._nav-link', ['item' => $item])
             @endforeach
-        @elseif (! ($section['collapsible'] ?? true))
-            <div class="text-uppercase small text-secondary px-2 mt-3 mb-1">{{ $section['label'] }}</div>
-            @foreach ($section['items'] as $item)
-                @include('layouts._nav-link', ['item' => $item])
-            @endforeach
         @else
             @php $collapseId = 'nav-section-' . $i; @endphp
-            <button class="btn btn-link nav-link d-flex justify-content-between align-items-center text-uppercase small text-secondary px-2 mt-2 mb-1 text-decoration-none"
-                    data-bs-toggle="collapse" data-bs-target="#{{ $collapseId }}"
+            <button class="nav-section-label nav-section-toggle d-flex justify-content-between align-items-center w-100"
+                    type="button" data-bs-toggle="collapse" data-bs-target="#{{ $collapseId }}"
                     aria-expanded="{{ $sectionActive ? 'true' : 'false' }}">
                 <span>{{ $section['label'] }}</span>
-                <i class="bi bi-chevron-down small"></i>
+                <i class="bi bi-chevron-down chevron"></i>
             </button>
             <div class="collapse {{ $sectionActive ? 'show' : '' }}" id="{{ $collapseId }}">
                 @foreach ($section['items'] as $item)

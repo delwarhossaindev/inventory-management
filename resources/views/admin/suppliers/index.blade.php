@@ -5,15 +5,15 @@
 @section('content')
 <div class="card border-0 shadow-sm">
     <div class="card-header bg-white">
-        <form method="GET" class="row g-2">
-            <div class="col-md-5">
-                <input type="text" name="q" value="{{ request('q') }}" class="form-control form-control-sm" placeholder="Search name, company, phone...">
-            </div>
-            <div class="col text-end">
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <form method="GET" class="d-flex flex-wrap align-items-center gap-2 flex-grow-1">
+                <input type="text" name="q" value="{{ request('q') }}" class="form-control form-control-sm" style="flex:1 1 240px; min-width:200px;" placeholder="Search name, company, phone...">
                 <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-search"></i></button>
+            </form>
+            <div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
                 <a href="{{ route('admin.suppliers.create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-lg"></i> Add Supplier</a>
             </div>
-        </form>
+        </div>
     </div>
     <div class="table-responsive">
         <table class="table table-hover mb-0">

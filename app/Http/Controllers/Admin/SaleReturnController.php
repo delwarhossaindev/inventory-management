@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Sale;
 use App\Models\SaleReturn;
+use App\Models\SaleReturnItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -30,7 +31,21 @@ class SaleReturnController extends Controller
     {
         $sale->load('items.product');
 
-        return view('admin.returns.create', compact('sale'));
+        // How much of each product has already been returned for this sale.
+        $returnedByProduct = $this->returnedByProduct($sale);
+
+        return view('admin.returns.create', compact('sale', 'returnedByProduct'));
+    }
+
+    /**
+     * Quantity already returned for this sale, keyed by product_id.
+     */
+    private function returnedByProduct(Sale $sale)
+    {
+        return SaleReturnItem::whereIn('sale_return_id', $sale->returns()->pluck('id'))
+            ->select('product_id', DB::raw('SUM(quantity) as qty'))
+            ->groupBy('product_id')
+            ->pluck('qty', 'product_id');
     }
 
     public function store(Request $request, Sale $sale)
@@ -44,6 +59,35 @@ class SaleReturnController extends Controller
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.unit_price' => 'required|numeric|min:0',
         ]);
+
+        // Guard: never let cumulative returns exceed what was actually sold.
+        $soldByProduct = $sale->items()
+            ->select('product_id', DB::raw('SUM(quantity) as qty'))
+            ->groupBy('product_id')->pluck('qty', 'product_id');
+        $alreadyByProduct = $this->returnedByProduct($sale);
+
+        $requestedByProduct = [];
+        foreach ($data['items'] as $row) {
+            if ((int) $row['quantity'] <= 0) {
+                continue;
+            }
+            $pid = $row['product_id'];
+            $requestedByProduct[$pid] = ($requestedByProduct[$pid] ?? 0) + (int) $row['quantity'];
+        }
+
+        foreach ($requestedByProduct as $pid => $qty) {
+            $sold = (int) ($soldByProduct[$pid] ?? 0);
+            $already = (int) ($alreadyByProduct[$pid] ?? 0);
+            $remaining = max($sold - $already, 0);
+
+            if ($qty > $remaining) {
+                $name = optional(Product::find($pid))->name ?? 'this product';
+                return back()->withInput()->withErrors([
+                    'items' => "Cannot return {$qty} of \"{$name}\" — only {$remaining} unit(s) left to return"
+                        . ($already > 0 ? " ({$already} already returned)." : '.'),
+                ]);
+            }
+        }
 
         $return = DB::transaction(function () use ($sale, $data) {
             $total = 0;

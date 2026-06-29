@@ -69,7 +69,7 @@
 
 {{-- Payment History & Due Payment --}}
 @if ($purchase->payments->count() || $purchase->due > 0)
-<div class="card border-0 shadow-sm mt-3">
+<div class="card border-0 shadow-sm mt-3" id="collect">
     <div class="card-header bg-white fw-semibold"><i class="bi bi-cash-stack me-1"></i>Payments</div>
     <div class="card-body">
         @if ($purchase->payments->count())

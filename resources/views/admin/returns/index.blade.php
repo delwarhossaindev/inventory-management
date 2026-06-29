@@ -4,6 +4,16 @@
 
 @section('content')
 <div class="card border-0 shadow-sm">
+    <div class="card-header bg-white">
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <div class="text-muted small flex-grow-1">
+                <i class="bi bi-info-circle me-1"></i>Returns are made against a sale. Find the invoice, then process the return.
+            </div>
+            <a href="{{ route('admin.sales.index') }}" class="btn btn-sm btn-primary ms-auto">
+                <i class="bi bi-plus-lg me-1"></i>New Return
+            </a>
+        </div>
+    </div>
     <div class="table-responsive">
         <table class="table table-hover mb-0">
             <thead class="table-light">

@@ -5,24 +5,22 @@
 @section('content')
 <div class="card border-0 shadow-sm">
     <div class="card-header bg-white">
-        <form method="GET" class="row g-2 align-items-center">
-            <div class="col-md-4">
-                <input type="text" name="q" value="{{ request('q') }}" class="form-control form-control-sm" placeholder="Search category...">
-            </div>
-            <div class="col-md-3">
-                <select name="level" class="form-select form-select-sm">
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <form method="GET" class="d-flex flex-wrap align-items-center gap-2 flex-grow-1">
+                <input type="text" name="q" value="{{ request('q') }}" class="form-control form-control-sm" style="flex:1 1 220px; min-width:180px;" placeholder="Search category...">
+                <select name="level" class="form-select form-select-sm" style="flex:0 1 170px; min-width:150px;">
                     <option value="">All Levels</option>
                     @foreach (\App\Models\Category::LEVELS as $val => $label)
                         <option value="{{ $val }}" @selected(request('level') == $val)>{{ $label }}</option>
                     @endforeach
                 </select>
-            </div>
-            <div class="col-md-5 text-end">
                 <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-search"></i></button>
                 <a href="{{ route('admin.categories.index') }}" class="btn btn-sm btn-outline-secondary">Reset</a>
+            </form>
+            <div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
                 <a href="{{ route('admin.categories.create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-lg"></i> Add</a>
             </div>
-        </form>
+        </div>
     </div>
     <div class="table-responsive">
         <table class="table table-hover mb-0">

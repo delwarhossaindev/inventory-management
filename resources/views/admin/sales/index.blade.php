@@ -5,23 +5,21 @@
 @section('content')
 <div class="card border-0 shadow-sm">
     <div class="card-header bg-white">
-        <form method="GET" class="row g-2">
-            <div class="col-md-4">
-                <input type="text" name="q" value="{{ request('q') }}" class="form-control form-control-sm" placeholder="Search invoice no...">
-            </div>
-            <div class="col-md-3">
-                <select name="payment_method" class="form-select form-select-sm">
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <form method="GET" class="d-flex flex-wrap align-items-center gap-2 flex-grow-1">
+                <input type="text" name="q" value="{{ request('q') }}" class="form-control form-control-sm" style="flex:1 1 220px; min-width:180px;" placeholder="Search invoice no...">
+                <select name="payment_method" class="form-select form-select-sm" style="flex:0 1 170px; min-width:150px;">
                     <option value="">All Payments</option>
                     @foreach (['cash', 'card', 'mobile', 'due'] as $m)
                         <option value="{{ $m }}" @selected(request('payment_method') === $m)>{{ ucfirst($m) }}</option>
                     @endforeach
                 </select>
-            </div>
-            <div class="col text-end">
                 <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-search"></i></button>
+            </form>
+            <div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
                 <a href="{{ route('admin.pos.index') }}" class="btn btn-sm btn-success"><i class="bi bi-cart-check"></i> New Sale (POS)</a>
             </div>
-        </form>
+        </div>
     </div>
     <div class="table-responsive">
         <table class="table table-hover mb-0">

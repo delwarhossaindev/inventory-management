@@ -78,6 +78,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::post('pos/customers', [PosController::class, 'storeCustomer'])->name('pos.customers.store');
 
     // Quotations
+    Route::get('quotations/{quotation}/pdf', [QuotationController::class, 'pdf'])->name('quotations.pdf');
     Route::resource('quotations', QuotationController::class)->only(['index', 'create', 'store', 'show', 'destroy']);
 
     // Sale Returns
