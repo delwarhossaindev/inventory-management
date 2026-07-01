@@ -8,6 +8,11 @@
             ->map(function ($item) {
                 $item['active'] = $item['active'] ?? $item['route'];
                 $item['is_active'] = request()->routeIs($item['active']);
+                // For items that share a route but differ by a query param (e.g. category levels),
+                // only highlight the one matching the current ?level=.
+                if ($item['is_active'] && isset($item['params']['level'])) {
+                    $item['is_active'] = (string) request('level') === (string) $item['params']['level'];
+                }
                 return $item;
             })
             ->values();

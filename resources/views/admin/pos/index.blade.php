@@ -19,7 +19,7 @@
     <div class="col-lg-7">
         <div class="input-group mb-3">
             <span class="input-group-text bg-dark text-white"><i class="bi bi-upc-scan"></i></span>
-            <input type="text" id="scan" class="form-control" placeholder="Scan barcode here, then Enter — adds to cart" autofocus>
+            <input type="text" id="scan" class="form-control" placeholder="Scan product or batch barcode, then Enter — adds to cart" autofocus>
         </div>
         <input type="text" id="search" class="form-control mb-3" placeholder="🔍 Search product by name / SKU / barcode / model...">
         <div class="row g-2 pos-products" id="product-grid">
@@ -99,7 +99,7 @@
                             <input type="number" step="0.01" min="0" name="paid" id="paid" value="0" class="form-control form-control-sm">
                         </div>
                     </div>
-                    <div class="d-flex justify-content-between mt-2"><span class="text-muted">Change / Due</span><span id="t-change">৳ 0.00</span></div>
+                    <div class="d-flex justify-content-between mt-2"><span class="text-muted" id="t-change-label">Change / Due</span><span id="t-change">৳ 0.00</span></div>
                 </div>
                 <div class="card-footer bg-white d-grid gap-2">
                     <button class="btn btn-success btn-lg" id="checkout-btn"><i class="bi bi-check2-circle me-1"></i>Complete Sale</button>
@@ -179,7 +179,20 @@ document.addEventListener('DOMContentLoaded', function () {
         totalEl.textContent = fmt(total);
         totalEl.dataset.total = total;
         const paid = parseFloat(document.getElementById('paid').value) || 0;
-        document.getElementById('t-change').textContent = fmt(paid - total);
+        const diff = paid - total;
+        const changeEl = document.getElementById('t-change');
+        const labelEl = document.getElementById('t-change-label');
+        if (diff < 0) {
+            // Customer still owes money.
+            if (labelEl) labelEl.textContent = 'Due';
+            changeEl.textContent = fmt(-diff);
+            changeEl.style.color = '#dc3545';
+        } else {
+            // Exact or overpaid — show change to return.
+            if (labelEl) labelEl.textContent = 'Change';
+            changeEl.textContent = fmt(diff);
+            changeEl.style.color = '#198754';
+        }
     }
 
     function addToCart(id, name, price, stock) {
@@ -221,29 +234,59 @@ document.addEventListener('DOMContentLoaded', function () {
         render();
     });
 
-    // Barcode scan: match by exact barcode (or SKU) and add to cart
+    // Batch number -> product id (scanned batch barcodes resolve to their product)
+    const batchMap = @json($batchMap);
+
+    function findProductEl(code) {
+        const lc = code.toLowerCase();
+        // 1) direct product barcode / SKU / search match
+        let el = [...document.querySelectorAll('.product-item')].find(p =>
+            p.dataset.barcode === code || (p.dataset.search || '').split(' ').includes(lc));
+        if (el) return el;
+        // 2) batch barcode -> product id (case-insensitive)
+        let pid = batchMap[code];
+        if (pid === undefined) {
+            const key = Object.keys(batchMap).find(k => k.toLowerCase() === lc);
+            if (key) pid = batchMap[key];
+        }
+        if (pid !== undefined) {
+            return document.querySelector('.product-item[data-id="' + pid + '"]');
+        }
+        return null;
+    }
+
+    // Barcode scan: match by product barcode/SKU or batch number, then add to cart
     const scan = document.getElementById('scan');
     scan.addEventListener('keydown', function (e) {
         if (e.key !== 'Enter') return;
         e.preventDefault();
         const code = this.value.trim();
         if (!code) return;
-        const el = [...document.querySelectorAll('.product-item')].find(p =>
-            p.dataset.barcode === code || (p.dataset.search || '').split(' ').includes(code.toLowerCase()));
+        const el = findProductEl(code);
         if (el) {
             addToCart(el.dataset.id, el.dataset.name, el.dataset.price, el.dataset.stock);
         } else {
-            alert('No product found for barcode: ' + code);
+            alert('No product or batch found for: ' + code);
         }
         this.value = '';
         this.focus();
     });
 
-    // Search filter
+    // Search filter (also matches batch numbers -> their product)
     document.getElementById('search').addEventListener('input', function () {
         const q = this.value.toLowerCase().trim();
+
+        // Products whose batch number matches the query.
+        const batchPids = new Set();
+        if (q) {
+            for (const bno in batchMap) {
+                if (bno.toLowerCase().includes(q)) batchPids.add(String(batchMap[bno]));
+            }
+        }
+
         document.querySelectorAll('.product-item').forEach(el => {
-            el.style.display = el.dataset.search.includes(q) ? '' : 'none';
+            const match = el.dataset.search.includes(q) || batchPids.has(el.dataset.id);
+            el.style.display = match ? '' : 'none';
         });
     });
 

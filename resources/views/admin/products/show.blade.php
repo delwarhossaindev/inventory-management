@@ -112,6 +112,42 @@
         @endif
     </div>
 </div>
+
+{{-- Stock batches --}}
+@php $batches = $product->batches()->orderByDesc('received_at')->orderByDesc('id')->get(); @endphp
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <span class="fw-semibold"><i class="bi bi-upc-scan me-1"></i>Stock Batches</span>
+        @if ($batches->count())
+            <a href="{{ route('admin.products.batch-labels', $product) }}" target="_blank" class="btn btn-sm btn-dark">
+                <i class="bi bi-printer me-1"></i>Print Batch Labels
+            </a>
+        @endif
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr><th>Batch No</th><th>Received</th><th class="text-end">Received Qty</th><th class="text-end">Remaining</th><th class="text-end">Unit Cost</th><th>Source</th></tr>
+            </thead>
+            <tbody>
+                @forelse ($batches as $b)
+                    <tr class="{{ $b->remaining <= 0 ? 'text-muted' : '' }}">
+                        <td class="fw-semibold">{{ $b->batch_no }}</td>
+                        <td class="small">{{ $b->received_at?->format('d M Y') }}</td>
+                        <td class="text-end">{{ $b->quantity }}</td>
+                        <td class="text-end">
+                            <span class="badge bg-{{ $b->remaining > 0 ? 'success' : 'secondary' }}">{{ $b->remaining }}</span>
+                        </td>
+                        <td class="text-end">৳{{ number_format($b->unit_cost, 2) }}</td>
+                        <td class="small text-muted">{{ class_basename($b->reference_type) ?: '—' }} {{ $b->note }}</td>
+                    </tr>
+                @empty
+                    <tr><td colspan="6" class="text-center text-muted py-4">No stock batches yet. Batches are created when stock is added (purchase / adjustment).</td></tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</div>
 @endsection
 
 @push('scripts')

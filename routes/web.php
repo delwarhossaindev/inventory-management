@@ -3,7 +3,9 @@
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\AccountingController;
 use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Admin\BatchController;
 use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\CashRegisterController;
 use App\Http\Controllers\Admin\ExpenseController;
@@ -20,6 +22,7 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\UnitController;
 use App\Http\Controllers\Admin\SaleController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\StockController;
@@ -47,11 +50,13 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 
     Route::get('categories/children', [CategoryController::class, 'children'])->name('categories.children');
     Route::resource('categories', CategoryController::class)->except('show');
+    Route::resource('units', UnitController::class)->except('show');
 
     // Custom product tools — must precede the resource so they aren't treated as {product}.
     Route::get('products/bulk-pricing', [ProductController::class, 'bulkPricing'])->name('products.bulk-pricing');
     Route::post('products/bulk-pricing', [ProductController::class, 'bulkPricingUpdate'])->name('products.bulk-pricing.update');
     Route::get('products/labels', [ProductController::class, 'labels'])->name('products.labels');
+    Route::get('products/{product}/batch-labels', [ProductController::class, 'batchLabels'])->name('products.batch-labels');
     Route::get('products/bulk-import', [ProductController::class, 'bulkImport'])->name('products.bulk-import');
     Route::post('products/bulk-import', [ProductController::class, 'bulkImportStore'])->name('products.bulk-import.store');
     Route::get('products/import-template', [ProductController::class, 'importTemplate'])->name('products.import-template');
@@ -102,6 +107,9 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('stock/{product}/adjust', [StockController::class, 'adjust'])->name('stock.adjust');
     Route::post('stock/{product}/adjust', [StockController::class, 'storeAdjust'])->name('stock.adjust.store');
 
+    // Batches
+    Route::get('batches', [BatchController::class, 'index'])->name('batches.index');
+
     // Reports
     Route::get('reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
     Route::get('reports/daily', [ReportController::class, 'daily'])->name('reports.daily');
@@ -109,6 +117,9 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('reports/purchases', [ReportController::class, 'purchases'])->name('reports.purchases');
     Route::get('reports/stock', [ReportController::class, 'stock'])->name('reports.stock');
     Route::get('reports/profit-loss', [ReportController::class, 'profitLoss'])->name('reports.profit-loss');
+
+    // Accounting
+    Route::get('accounting/day-book', [AccountingController::class, 'dayBook'])->name('accounting.day-book');
 
     // Access control
     Route::resource('users', UserController::class)->except('show');

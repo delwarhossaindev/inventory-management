@@ -25,6 +25,7 @@ return [
             ['label' => 'Products', 'icon' => 'bi-box', 'route' => 'admin.products.index', 'active' => 'admin.products.*', 'can' => 'view products'],
             ['label' => 'Categories', 'icon' => 'bi-diagram-3', 'route' => 'admin.categories.index', 'active' => 'admin.categories.*', 'can' => 'manage categories'],
             ['label' => 'Stock', 'icon' => 'bi-clipboard-data', 'route' => 'admin.stock.index', 'active' => 'admin.stock.*', 'can' => 'view stock'],
+            ['label' => 'Batches', 'icon' => 'bi-upc-scan', 'route' => 'admin.batches.index', 'active' => 'admin.batches.*', 'can' => 'view stock'],
         ],
     ],
     [
@@ -54,11 +55,28 @@ return [
         ],
     ],
     [
+        'label' => 'Accounting',
+        'collapsible' => true,
+        'items' => [
+            ['label' => 'Day Book', 'icon' => 'bi-journal-bookmark', 'route' => 'admin.accounting.day-book', 'active' => 'admin.accounting.*', 'can' => 'view reports'],
+        ],
+    ],
+    [
         'label' => 'Contacts',
         'collapsible' => true,
         'items' => [
             ['label' => 'Suppliers', 'icon' => 'bi-truck', 'route' => 'admin.suppliers.index', 'active' => 'admin.suppliers.*', 'can' => 'manage suppliers'],
             ['label' => 'Customers', 'icon' => 'bi-people', 'route' => 'admin.customers.index', 'active' => 'admin.customers.*', 'can' => 'manage customers'],
+        ],
+    ],
+    [
+        'label' => 'Settings',
+        'collapsible' => true,
+        'items' => [
+            ['label' => 'Unit', 'icon' => 'bi-rulers', 'route' => 'admin.units.index', 'active' => 'admin.units.*', 'can' => 'manage categories'],
+            ['label' => 'Main Category', 'icon' => 'bi-diagram-3', 'route' => 'admin.categories.index', 'params' => ['level' => 1], 'active' => 'admin.categories.index', 'can' => 'manage categories'],
+            ['label' => 'Category', 'icon' => 'bi-diagram-2', 'route' => 'admin.categories.index', 'params' => ['level' => 2], 'active' => 'admin.categories.index', 'can' => 'manage categories'],
+            ['label' => 'Sub Category', 'icon' => 'bi-diagram-3-fill', 'route' => 'admin.categories.index', 'params' => ['level' => 3], 'active' => 'admin.categories.index', 'can' => 'manage categories'],
         ],
     ],
     [

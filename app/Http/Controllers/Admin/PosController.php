@@ -7,6 +7,7 @@ use App\Models\ActivityLog;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Sale;
+use App\Models\StockBatch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -20,11 +21,18 @@ class PosController extends Controller
 
     public function index()
     {
+        // Map of batch number -> product id, so a scanned batch barcode resolves to its product.
+        $batchMap = StockBatch::where('remaining', '>', 0)
+            ->whereNotNull('batch_no')
+            ->orderByDesc('received_at')
+            ->pluck('product_id', 'batch_no');
+
         return view('admin.pos.index', [
             'products' => Product::active()
                 ->orderBy('name')
                 ->get(['id', 'name', 'sku', 'barcode', 'model', 'sale_price', 'stock_quantity', 'image_url', 'main_category_id']),
             'customers' => Customer::where('status', 'active')->orderBy('name')->get(['id', 'name', 'phone']),
+            'batchMap' => $batchMap,
         ]);
     }
 

@@ -14,7 +14,7 @@ class ProductController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('permission:view products')->only(['index', 'show', 'labels']);
+        $this->middleware('permission:view products')->only(['index', 'show', 'labels', 'batchLabels']);
         $this->middleware('permission:create products')->only(['create', 'store', 'bulkImport', 'bulkImportStore', 'importTemplate']);
         $this->middleware('permission:edit products')->only(['edit', 'update', 'bulkPricing', 'bulkPricingUpdate']);
         $this->middleware('permission:delete products')->only(['destroy']);
@@ -181,6 +181,27 @@ class ProductController extends Controller
             'products' => $query->get(),
             'mains' => Category::level(Category::LEVEL_MAIN)->orderBy('name')->get(),
             'copies' => max(1, min((int) $request->input('copies', 1), 50)),
+        ]);
+    }
+
+    /** Printable barcode labels for each stock batch of a product. */
+    public function batchLabels(Request $request, Product $product)
+    {
+        $query = $product->batches()->orderByDesc('received_at')->orderByDesc('id');
+
+        // Print a single batch when requested (from the Batches list).
+        if ($request->filled('batch')) {
+            $query->where('id', $request->integer('batch'));
+        } elseif (! $request->boolean('all')) {
+            // Otherwise only batches that still have stock, unless "all" is requested.
+            $query->where('remaining', '>', 0);
+        }
+
+        return view('admin.products.batch-labels', [
+            'product' => $product,
+            'batches' => $query->get(),
+            'copies' => max(1, min((int) $request->input('copies', 1), 50)),
+            'showAll' => $request->boolean('all'),
         ]);
     }
 
