@@ -31,7 +31,6 @@ class ExpenseController extends Controller
         $expenses = $query->paginate(20)->withQueryString();
         $categories = ExpenseCategory::orderBy('name')->get();
 
-        $totalFiltered = (clone $query)->getQuery()->aggregate = null;
         $total = Expense::query()
             ->when($request->filled('category'), fn ($q) => $q->where('expense_category_id', $request->category))
             ->when($request->filled('from'), fn ($q) => $q->whereDate('expense_date', '>=', $request->from))

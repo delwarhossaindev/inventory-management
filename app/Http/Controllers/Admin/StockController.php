@@ -33,10 +33,15 @@ class StockController extends Controller
 
         $products = $query->paginate(20)->withQueryString();
 
+        $agg = Product::selectRaw(
+            'SUM(stock_quantity) as total_items, SUM(stock_quantity * purchase_price) as stock_value,'
+            . ' SUM(CASE WHEN stock_quantity <= alert_quantity THEN 1 ELSE 0 END) as low_stock'
+        )->first();
+
         $summary = [
-            'total_items' => Product::sum('stock_quantity'),
-            'stock_value' => Product::select(DB::raw('SUM(stock_quantity * purchase_price) as v'))->value('v') ?? 0,
-            'low_stock' => Product::lowStock()->count(),
+            'total_items' => (int) $agg->total_items,
+            'stock_value' => (float) ($agg->stock_value ?? 0),
+            'low_stock' => (int) $agg->low_stock,
         ];
 
         return view('admin.stock.index', compact('products', 'summary'));

@@ -16,14 +16,27 @@ class DashboardController extends Controller
     {
         $today = Carbon::today();
 
+        // One query for all product aggregates.
+        $productAgg = Product::selectRaw(
+            'COUNT(*) as total, SUM(CASE WHEN stock_quantity <= alert_quantity THEN 1 ELSE 0 END) as low_stock, SUM(stock_quantity * purchase_price) as stock_value'
+        )->first();
+
+        // One query for today's + this month's sales.
+        $salesAgg = Sale::selectRaw(
+            'SUM(CASE WHEN sale_date = ? THEN total ELSE 0 END) as today_total,'
+            . ' SUM(CASE WHEN sale_date = ? THEN 1 ELSE 0 END) as today_count,'
+            . ' SUM(CASE WHEN MONTH(sale_date) = ? AND YEAR(sale_date) = ? THEN total ELSE 0 END) as month_total',
+            [$today->toDateString(), $today->toDateString(), $today->month, $today->year]
+        )->first();
+
         $stats = [
-            'products' => Product::count(),
+            'products' => (int) $productAgg->total,
             'categories' => Category::count(),
-            'low_stock' => Product::lowStock()->count(),
-            'stock_value' => Product::selectRaw('SUM(stock_quantity * purchase_price) as v')->value('v') ?? 0,
-            'today_sales' => Sale::whereDate('sale_date', $today)->sum('total'),
-            'today_sales_count' => Sale::whereDate('sale_date', $today)->count(),
-            'month_sales' => Sale::whereMonth('sale_date', $today->month)->whereYear('sale_date', $today->year)->sum('total'),
+            'low_stock' => (int) $productAgg->low_stock,
+            'stock_value' => (float) ($productAgg->stock_value ?? 0),
+            'today_sales' => (float) ($salesAgg->today_total ?? 0),
+            'today_sales_count' => (int) ($salesAgg->today_count ?? 0),
+            'month_sales' => (float) ($salesAgg->month_total ?? 0),
             'month_purchases' => Purchase::whereMonth('purchase_date', $today->month)->whereYear('purchase_date', $today->year)->sum('total'),
         ];
 
