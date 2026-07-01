@@ -77,39 +77,35 @@
     <div class="section">
         <div class="section-title"><div class="ic" style="background:#6366f1"><i class="bi bi-list-ul"></i></div> সূচিপত্র</div>
         <div class="toc">
-            <a><i class="bi bi-speedometer2"></i> ড্যাশবোর্ড ও চার্ট</a>
-            <a><i class="bi bi-box-arrow-in-right"></i> লগইন ও নিরাপত্তা</a>
-            <a><i class="bi bi-cart-check"></i> POS (পয়েন্ট অব সেল)</a>
-            <a><i class="bi bi-receipt"></i> বিক্রয় ও ইনভয়েস</a>
-            <a><i class="bi bi-printer"></i> থার্মাল রিসিট</a>
-            <a><i class="bi bi-file-earmark-text"></i> কোটেশন</a>
-            <a><i class="bi bi-arrow-return-left"></i> বিক্রয় ফেরত</a>
-            <a><i class="bi bi-cash-stack"></i> বাকি আদায়</a>
-            <a><i class="bi bi-calendar2-check"></i> কিস্তি / EMI</a>
-            <a><i class="bi bi-safe"></i> ক্যাশ রেজিস্টার</a>
-            <a><i class="bi bi-box"></i> পণ্য ও ওয়ারেন্টি</a>
-            <a><i class="bi bi-diagram-3"></i> ক্যাটাগরি</a>
-            <a><i class="bi bi-clipboard-data"></i> স্টক ব্যবস্থাপনা</a>
-            <a><i class="bi bi-bag-plus"></i> ক্রয়</a>
-            <a><i class="bi bi-upc"></i> বারকোড লেবেল</a>
-            <a><i class="bi bi-wallet2"></i> খরচ ট্র্যাকিং</a>
-            <a><i class="bi bi-graph-up"></i> রিপোর্ট</a>
-            <a><i class="bi bi-truck"></i> সরবরাহকারী ও ক্রেতা</a>
-            <a><i class="bi bi-journal-text"></i> লেজার</a>
-            <a><i class="bi bi-star"></i> লয়ালটি পয়েন্ট</a>
-            <a><i class="bi bi-person-gear"></i> ব্যবহারকারী ও ভূমিকা</a>
-            <a><i class="bi bi-building"></i> শাখা</a>
-            <a><i class="bi bi-gear"></i> সেটিংস</a>
-            <a><i class="bi bi-chat-dots"></i> SMS নোটিফিকেশন</a>
-            <a><i class="bi bi-clock-history"></i> কার্যকলাপ লগ</a>
-            <a><i class="bi bi-person-check"></i> লগইন ইতিহাস</a>
-            <a><i class="bi bi-database-down"></i> ডাটাবেজ ব্যাকআপ</a>
-            <a><i class="bi bi-plug"></i> ই-কমার্স API</a>
+            <a href="#bn-login"><i class="bi bi-box-arrow-in-right"></i> লগইন ও নিরাপত্তা</a>
+            <a href="#bn-dashboard"><i class="bi bi-speedometer2"></i> ড্যাশবোর্ড ও চার্ট</a>
+            <a href="#bn-wf-sales"><i class="bi bi-cart-check"></i> বিক্রয় প্রক্রিয়া</a>
+            <a href="#bn-pos"><i class="bi bi-cart-check"></i> POS (পয়েন্ট অব সেল)</a>
+            <a href="#bn-pos2"><i class="bi bi-search"></i> POS 2 (সার্চ মোড)</a>
+            <a href="#bn-sales"><i class="bi bi-receipt"></i> বিক্রয় ও ইনভয়েস</a>
+            <a href="#bn-quotation"><i class="bi bi-file-earmark-text"></i> কোটেশন</a>
+            <a href="#bn-returns"><i class="bi bi-arrow-return-left"></i> বিক্রয় ফেরত</a>
+            <a href="#bn-payments"><i class="bi bi-cash-stack"></i> বাকি আদায়</a>
+            <a href="#bn-installments"><i class="bi bi-calendar2-check"></i> কিস্তি / EMI</a>
+            <a href="#bn-cashregister"><i class="bi bi-safe"></i> ক্যাশ রেজিস্টার</a>
+            <a href="#bn-products"><i class="bi bi-box"></i> পণ্য ও ওয়ারেন্টি</a>
+            <a href="#bn-units"><i class="bi bi-rulers"></i> পরিমাপ একক (Units)</a>
+            <a href="#bn-stock"><i class="bi bi-clipboard-data"></i> স্টক ব্যবস্থাপনা</a>
+            <a href="#bn-batches"><i class="bi bi-layers"></i> স্টক ব্যাচ (FIFO)</a>
+            <a href="#bn-purchases"><i class="bi bi-bag-plus"></i> ক্রয়</a>
+            <a href="#bn-barcodes"><i class="bi bi-upc"></i> বারকোড লেবেল</a>
+            <a href="#bn-expenses"><i class="bi bi-wallet2"></i> খরচ ট্র্যাকিং</a>
+            <a href="#bn-accounting"><i class="bi bi-journal-bookmark"></i> অ্যাকাউন্টিং</a>
+            <a href="#bn-reports"><i class="bi bi-graph-up"></i> রিপোর্ট</a>
+            <a href="#bn-contacts"><i class="bi bi-truck"></i> সরবরাহকারী ও ক্রেতা</a>
+            <a href="#bn-users"><i class="bi bi-person-gear"></i> ব্যবহারকারী ও ভূমিকা</a>
+            <a href="#bn-admin"><i class="bi bi-gear"></i> প্রশাসন ও সেটিংস</a>
+            <a href="#bn-api"><i class="bi bi-plug"></i> ই-কমার্স API</a>
         </div>
     </div>
 
     <!-- LOGIN -->
-    <div class="section">
+    <div class="section" id="bn-login">
         <div class="section-title"><div class="ic" style="background:#10b981"><i class="bi bi-shield-check"></i></div> লগইন ও নিরাপত্তা</div>
         <div class="step"><div class="step-n">১</div><div><strong>অ্যাপ্লিকেশন খুলুন</strong><p>ব্রাউজারে আপনার অ্যাপ্লিকেশনের URL যান। লগইন পেজ দেখবেন।</p></div></div>
         <div class="step"><div class="step-n">২</div><div><strong>ইমেইল ও পাসওয়ার্ড দিন</strong><p>আপনার ইমেইল ও পাসওয়ার্ড লিখে Login বাটনে ক্লিক করুন। প্রতিটি লগইন IP সহ রেকর্ড হয়।</p></div></div>
@@ -118,7 +114,7 @@
     </div>
 
     <!-- DASHBOARD -->
-    <div class="section">
+    <div class="section" id="bn-dashboard">
         <div class="section-title"><div class="ic" style="background:#3b82f6"><i class="bi bi-speedometer2"></i></div> ড্যাশবোর্ড ও চার্ট</div>
         <div class="step"><div class="step-n"><i class="bi bi-cash-coin"></i></div><div><strong>আজকের বিক্রয়</strong><p>আজকের মোট বিক্রয় পরিমাণ ও ইনভয়েস সংখ্যা।</p></div></div>
         <div class="step"><div class="step-n"><i class="bi bi-graph-up"></i></div><div><strong>৭ দিনের সেলস চার্ট</strong><p>লাইন চার্টে গত ৭ দিনের দৈনিক বিক্রয় ট্রেন্ড দেখায়।</p></div></div>
@@ -126,7 +122,7 @@
     </div>
 
     <!-- SALES WORKFLOW -->
-    <div class="section">
+    <div class="section" id="bn-wf-sales">
         <div class="section-title"><div class="ic" style="background:#059669"><i class="bi bi-cart-check"></i></div> বিক্রয় প্রক্রিয়া (Workflow)</div>
         <div class="flow">
             <div class="flow-node"><div class="fi" style="background:#6366f1"><i class="bi bi-person"></i></div><div class="fl">ক্রেতা আসে</div></div>
@@ -143,7 +139,7 @@
     </div>
 
     <!-- POS -->
-    <div class="section">
+    <div class="section" id="bn-pos">
         <div class="section-title"><div class="ic" style="background:#059669"><i class="bi bi-cart-check"></i></div> POS (পয়েন্ট অব সেল)</div>
         <div class="step"><div class="step-n">১</div><div><strong>বারকোড স্ক্যান বা সার্চ করুন</strong><p>বারকোড স্ক্যানার দিয়ে স্ক্যান করুন, অথবা নাম/SKU/মডেল দিয়ে সার্চ করুন।</p></div></div>
         <div class="step"><div class="step-n">২</div><div><strong>কার্টে যোগ করুন</strong><p>পণ্যের কার্ডে ক্লিক করুন। আবার ক্লিক করলে পরিমাণ বাড়বে।</p></div></div>
@@ -152,8 +148,18 @@
         <div class="step"><div class="step-n">৫</div><div><strong>বিক্রয় সম্পন্ন করুন</strong><p>সবুজ "Complete Sale" বাটনে ক্লিক করুন। ইনভয়েস স্বয়ংক্রিয়ভাবে খুলবে।</p></div></div>
     </div>
 
+    <!-- POS 2 -->
+    <div class="section" id="bn-pos2">
+        <div class="section-title"><div class="ic" style="background:#0284c7"><i class="bi bi-search"></i></div> POS 2 — সার্চ মোড</div>
+        <p style="color:#6b7280;font-size:.88rem;margin-bottom:10px">POS 2 হলো হালকা, সার্চ-প্রথম ইন্টারফেস — পণ্যের গ্রিড আগে লোড হয় না, তাই বড় ক্যাটালগে দ্রুত কাজ করে।</p>
+        <div class="step"><div class="step-n">১</div><div><strong>নাম বা বারকোড টাইপ করুন</strong><p>পণ্যের নাম, SKU, মডেল টাইপ করুন বা বারকোড স্ক্যান করুন। ফলাফল তাৎক্ষণিক দেখা যাবে।</p></div></div>
+        <div class="step"><div class="step-n">২</div><div><strong>নির্বাচন করুন ও কার্টে যোগ করুন</strong><p>ফলাফল থেকে পণ্যে ক্লিক করুন। কার্টে সরাসরি পরিমাণ পরিবর্তন করুন।</p></div></div>
+        <div class="step"><div class="step-n">৩</div><div><strong>পেমেন্ট সম্পন্ন করুন</strong><p>সাধারণ POS এর মতোই — ক্রেতা, ডিসকাউন্ট, পেমেন্ট পদ্ধতি।</p></div></div>
+        <div class="tip">💡 যখন পণ্যের সংখ্যা অনেক বেশি বা ডিভাইসের RAM কম, তখন POS 2 ব্যবহার করুন — পুরো গ্রিড লোড করতে হয় না বলে দ্রুত কাজ করে।</div>
+    </div>
+
     <!-- SALES -->
-    <div class="section">
+    <div class="section" id="bn-sales">
         <div class="section-title"><div class="ic" style="background:#8b5cf6"><i class="bi bi-receipt"></i></div> বিক্রয় ও ইনভয়েস</div>
         <div class="step"><div class="step-n"><i class="bi bi-printer"></i></div><div><strong>ইনভয়েস প্রিন্ট (A4)</strong><p>কোম্পানির লোগো ও তথ্য সহ পেশাদার ইনভয়েস।</p></div></div>
         <div class="step"><div class="step-n"><i class="bi bi-printer"></i></div><div><strong>থার্মাল রিসিট (58mm/80mm)</strong><p>POS প্রিন্টারের জন্য কমপ্যাক্ট রিসিট।</p></div></div>
@@ -162,14 +168,14 @@
     </div>
 
     <!-- QUOTATION -->
-    <div class="section">
+    <div class="section" id="bn-quotation">
         <div class="section-title"><div class="ic" style="background:#d97706"><i class="bi bi-file-earmark-text"></i></div> কোটেশন / মূল্য প্রস্তাব</div>
         <div class="step"><div class="step-n">১</div><div><strong>কোটেশন তৈরি করুন</strong><p>Transactions > Quotations > New। ক্রেতা, পণ্য, মূল্য ও মেয়াদ দিন।</p></div></div>
         <div class="step"><div class="step-n">২</div><div><strong>প্রিন্ট ও শেয়ার</strong><p>কোম্পানির তথ্য সহ প্রিন্ট করুন। স্টকে কোনো প্রভাব পড়ে না।</p></div></div>
     </div>
 
     <!-- RETURNS -->
-    <div class="section">
+    <div class="section" id="bn-returns">
         <div class="section-title"><div class="ic" style="background:#ef4444"><i class="bi bi-arrow-return-left"></i></div> বিক্রয় ফেরত (Return)</div>
         <div class="flow">
             <div class="flow-node"><div class="fi" style="background:#ef4444"><i class="bi bi-person-x"></i></div><div class="fl">ক্রেতা ফেরত দেয়</div></div>
@@ -184,7 +190,7 @@
     </div>
 
     <!-- DUE / PAYMENTS -->
-    <div class="section">
+    <div class="section" id="bn-payments">
         <div class="section-title"><div class="ic" style="background:#0891b2"><i class="bi bi-cash-stack"></i></div> বাকি আদায় ও পেমেন্ট</div>
         <div class="step"><div class="step-n">১</div><div><strong>বিক্রয় থেকে আদায়</strong><p>বাকি আছে এমন বিক্রয় খুলুন, নিচে পেমেন্ট ফর্ম আছে — পরিমাণ, পদ্ধতি, তারিখ দিন।</p></div></div>
         <div class="step"><div class="step-n">২</div><div><strong>সরবরাহকারীকে পরিশোধ</strong><p>বাকি আছে এমন ক্রয় খুলুন, একই ফর্ম আছে।</p></div></div>
@@ -192,29 +198,37 @@
     </div>
 
     <!-- INSTALLMENTS -->
-    <div class="section">
+    <div class="section" id="bn-installments">
         <div class="section-title"><div class="ic" style="background:#7c3aed"><i class="bi bi-calendar2-check"></i></div> কিস্তি / EMI</div>
         <div class="step"><div class="step-n">১</div><div><strong>পরিকল্পনা তৈরি</strong><p>বিক্রয় পৃষ্ঠা থেকে EMI বাটনে ক্লিক করুন। ডাউন পেমেন্ট ও কিস্তির সংখ্যা দিন।</p></div></div>
         <div class="step"><div class="step-n">২</div><div><strong>আদায় ট্র্যাক করুন</strong><p>প্রতিটি কিস্তির নির্ধারিত তারিখ আছে। আদায় হলে সবুজ বাটনে ক্লিক করুন। বিলম্বিত কিস্তি লাল দেখায়।</p></div></div>
     </div>
 
     <!-- CASH REGISTER -->
-    <div class="section">
+    <div class="section" id="bn-cashregister">
         <div class="section-title"><div class="ic" style="background:#dc2626"><i class="bi bi-safe"></i></div> ক্যাশ রেজিস্টার</div>
         <div class="step"><div class="step-n">১</div><div><strong>রেজিস্টার খুলুন</strong><p>প্রারম্ভিক ব্যালেন্স দিয়ে Open Register ক্লিক করুন।</p></div></div>
         <div class="step"><div class="step-n">২</div><div><strong>শিফট শেষে বন্ধ করুন</strong><p>সমাপনী ব্যালেন্স দিন। পার্থক্য দেখাবে — জবাবদিহিতা নিশ্চিত হবে।</p></div></div>
     </div>
 
     <!-- PRODUCTS -->
-    <div class="section">
+    <div class="section" id="bn-products">
         <div class="section-title"><div class="ic" style="background:#f59e0b"><i class="bi bi-box"></i></div> পণ্য ও ওয়ারেন্টি</div>
         <div class="step"><div class="step-n">১</div><div><strong>পণ্য যোগ করুন</strong><p>নাম, দাম, ক্যাটাগরি, স্টক, SKU, বারকোড, ছবি, ওয়ারেন্টি (দিন) দিন।</p></div></div>
         <div class="step"><div class="step-n">২</div><div><strong>ওয়ারেন্টি ট্র্যাকিং</strong><p>পণ্যে ওয়ারেন্টি দিন সেট করলে বিক্রয়ের সময় মেয়াদ স্বয়ংক্রিয় গণনা হয়।</p></div></div>
         <div class="step"><div class="step-n">৩</div><div><strong>বাল্ক ইমপোর্ট ও প্রাইসিং</strong><p>স্প্রেডশিট থেকে ইমপোর্ট, একসাথে অনেক পণ্যের দাম আপডেট।</p></div></div>
     </div>
 
+    <!-- UNITS -->
+    <div class="section" id="bn-units">
+        <div class="section-title"><div class="ic" style="background:#64748b"><i class="bi bi-rulers"></i></div> পরিমাপ একক (Units of Measure)</div>
+        <div class="step"><div class="step-n">১</div><div><strong>একক যোগ করুন</strong><p>Catalog > Units > New। নাম (যেমন: পিস, কেজি, মিটার, বাক্স) ও সংক্ষেপ দিন।</p></div></div>
+        <div class="step"><div class="step-n">২</div><div><strong>সম্পাদনা ও মুছে ফেলা</strong><p>যেকোনো সময় নাম পরিবর্তন করুন। কোনো পণ্যে ব্যবহৃত একক মুছা যাবে না।</p></div></div>
+        <div class="tip">💡 পণ্য তৈরির সময় ডিফল্ট একক সেট করুন — এটি ইনভয়েস ও স্টক রিপোর্টে দেখাবে।</div>
+    </div>
+
     <!-- STOCK -->
-    <div class="section">
+    <div class="section" id="bn-stock">
         <div class="section-title"><div class="ic" style="background:#06b6d4"><i class="bi bi-clipboard-data"></i></div> স্টক ব্যবস্থাপনা</div>
         <div class="step"><div class="step-n">১</div><div><strong>স্টক দেখুন</strong><p>Catalog > Stock — সব পণ্যের বর্তমান পরিমাণ।</p></div></div>
         <div class="step"><div class="step-n">২</div><div><strong>ম্যানুয়াল সমন্বয়</strong><p>ক্ষতি, হারানো, সংশোধনের জন্য Adjust ক্লিক করুন।</p></div></div>
@@ -222,8 +236,17 @@
         <div class="tip"><i class="bi bi-lightbulb-fill me-1"></i> <strong>FIFO কস্টিং:</strong> সবচেয়ে পুরনো ক্রয়মূল্য আগে ব্যবহার হয় — সঠিক লাভ গণনা নিশ্চিত।</div>
     </div>
 
+    <!-- BATCHES -->
+    <div class="section" id="bn-batches">
+        <div class="section-title"><div class="ic" style="background:#0369a1"><i class="bi bi-layers"></i></div> স্টক ব্যাচ (FIFO)</div>
+        <p style="color:#6b7280;font-size:.88rem;margin-bottom:10px">প্রতিটি ক্রয়ে একটি স্টক ব্যাচ তৈরি হয়। ব্যাচগুলো পুরনো থেকে নতুন ক্রমে ব্যবহৃত হয় (FIFO) — এতে প্রকৃত পণ্যমূল্য সঠিকভাবে গণনা হয়।</p>
+        <div class="step"><div class="step-n">১</div><div><strong>সব ব্যাচ দেখুন</strong><p>Catalog > Batches। প্রতিটি ব্যাচের নম্বর (B000001), প্রাপ্তির তারিখ, একক মূল্য, মূল পরিমাণ এবং <strong>অবশিষ্ট পরিমাণ</strong> দেখুন।</p></div></div>
+        <div class="step"><div class="step-n">২</div><div><strong>পণ্য অনুযায়ী ফিল্টার করুন</strong><p>পণ্যের নাম দিয়ে সার্চ করলে সেই পণ্যের সব ব্যাচ দেখাবে — কোন কস্ট লেয়ার এখন বিক্রি হচ্ছে তা বোঝা যাবে।</p></div></div>
+        <div class="tip">💡 <strong>FIFO কেন?</strong> পণ্য বিক্রির সময় সবচেয়ে পুরনো ব্যাচের মূল্য আগে ব্যবহার হয়। ক্রয়মূল্য ওঠানামা করলেও সঠিক মুনাফা গণনা নিশ্চিত হয়।</div>
+    </div>
+
     <!-- PURCHASES -->
-    <div class="section">
+    <div class="section" id="bn-purchases">
         <div class="section-title"><div class="ic" style="background:#2563eb"><i class="bi bi-bag-plus"></i></div> ক্রয়</div>
         <div class="step"><div class="step-n">১</div><div><strong>ক্রয় তৈরি করুন</strong><p>সরবরাহকারী, পণ্য, খরচ দিন। স্টক স্বয়ংক্রিয় বাড়ে।</p></div></div>
         <div class="step"><div class="step-n">২</div><div><strong>বাল্ক ইমপোর্ট</strong><p>স্প্রেডশিট থেকে অনেক আইটেম একসাথে আমদানি।</p></div></div>
@@ -231,20 +254,28 @@
     </div>
 
     <!-- BARCODES -->
-    <div class="section">
+    <div class="section" id="bn-barcodes">
         <div class="section-title"><div class="ic" style="background:#1f2937"><i class="bi bi-upc"></i></div> বারকোড লেবেল</div>
         <div class="step"><div class="step-n">১</div><div><strong>লেবেল তৈরি ও প্রিন্ট</strong><p>Products > Labels। লেআউট বাছুন: A4 (2/3/4 কলাম), থার্মাল 58mm, থার্মাল 80mm।</p></div></div>
     </div>
 
     <!-- EXPENSES -->
-    <div class="section">
+    <div class="section" id="bn-expenses">
         <div class="section-title"><div class="ic" style="background:#dc2626"><i class="bi bi-wallet2"></i></div> খরচ ট্র্যাকিং</div>
         <div class="step"><div class="step-n">১</div><div><strong>খরচ যোগ করুন</strong><p>শিরোনাম (ভাড়া, বিদ্যুৎ ইত্যাদি), পরিমাণ, ক্যাটাগরি, তারিখ দিন।</p></div></div>
         <div class="step"><div class="step-n">২</div><div><strong>ফিল্টার ও মোট</strong><p>ক্যাটাগরি ও তারিখ অনুযায়ী ফিল্টার করুন। মোট পরিমাণ দেখায়।</p></div></div>
     </div>
 
+    <!-- ACCOUNTING -->
+    <div class="section" id="bn-accounting">
+        <div class="section-title"><div class="ic" style="background:#0f766e"><i class="bi bi-journal-bookmark"></i></div> অ্যাকাউন্টিং</div>
+        <div class="step"><div class="step-n"><i class="bi bi-journal-check"></i></div><div><strong>ডে বুক (Day Book)</strong><p>নির্ধারিত তারিখের সকল আর্থিক লেনদেন — বিক্রয়, ক্রয়, পেমেন্ট, খরচ — কালানুক্রমিকভাবে দেখা যায়। প্রতিদিনের মিলানের জন্য আদর্শ।</p></div></div>
+        <div class="step"><div class="step-n"><i class="bi bi-scale"></i></div><div><strong>ট্রায়াল ব্যালেন্স (Trial Balance)</strong><p>সকল অ্যাকাউন্টের ডেবিট ও ক্রেডিট মোটের সারসংক্ষেপ। P&L তৈরির আগে বই মিলিয়ে দেখুন।</p></div></div>
+        <div class="tip">💡 Accounting > Day Book — নির্দিষ্ট তারিখে কী হয়েছে তা যাচাই করার সবচেয়ে দ্রুত উপায়।</div>
+    </div>
+
     <!-- REPORTS -->
-    <div class="section">
+    <div class="section" id="bn-reports">
         <div class="section-title"><div class="ic" style="background:#7c3aed"><i class="bi bi-graph-up"></i></div> রিপোর্ট</div>
         <div class="step"><div class="step-n"><i class="bi bi-graph-up"></i></div><div><strong>বিক্রয় ও মুনাফা</strong><p>রেভিনিউ, COGS, গ্রস প্রফিট প্রতি বিক্রয় মার্জিন সহ।</p></div></div>
         <div class="step"><div class="step-n"><i class="bi bi-calendar3"></i></div><div><strong>দৈনিক সারসংক্ষেপ</strong><p>দিন অনুযায়ী বিক্রয়, আয় ও মুনাফার বিভাজন।</p></div></div>
@@ -253,14 +284,14 @@
     </div>
 
     <!-- CONTACTS & LEDGER -->
-    <div class="section">
+    <div class="section" id="bn-contacts">
         <div class="section-title"><div class="ic" style="background:#059669"><i class="bi bi-journal-text"></i></div> সরবরাহকারী, ক্রেতা ও লেজার</div>
         <div class="step"><div class="step-n"><i class="bi bi-truck"></i></div><div><strong>সরবরাহকারী</strong><p>নাম, কোম্পানি, ফোন, ইমেইল। লেজার বাটনে ক্লিক করে সম্পূর্ণ লেনদেন দেখুন।</p></div></div>
         <div class="step"><div class="step-n"><i class="bi bi-person"></i></div><div><strong>ক্রেতা</strong><p>POS থেকে দ্রুত যোগ। লেজারে মোট ক্রয়, পরিশোধ, বাকি দেখুন।</p></div></div>
     </div>
 
     <!-- USERS -->
-    <div class="section">
+    <div class="section" id="bn-users">
         <div class="section-title"><div class="ic" style="background:#be185d"><i class="bi bi-person-gear"></i></div> ব্যবহারকারী, ভূমিকা ও অনুমতি</div>
         <div class="step"><div class="step-n"><i class="bi bi-person-plus"></i></div><div><strong>ব্যবহারকারী যোগ</strong><p>নাম, ইমেইল, পাসওয়ার্ড, ভূমিকা নির্ধারণ করুন।</p></div></div>
         <div class="step"><div class="step-n"><i class="bi bi-shield-lock"></i></div><div><strong>ভূমিকা ব্যবস্থাপনা</strong><p>নির্দিষ্ট অনুমতি সহ ভূমিকা তৈরি/সম্পাদনা করুন। সাইডবার স্বয়ংক্রিয় লুকায়।</p></div></div>
@@ -268,7 +299,7 @@
     </div>
 
     <!-- ADMIN FEATURES -->
-    <div class="section">
+    <div class="section" id="bn-admin">
         <div class="section-title"><div class="ic" style="background:#64748b"><i class="bi bi-gear"></i></div> প্রশাসন ও সেটিংস</div>
         <div class="step"><div class="step-n"><i class="bi bi-building"></i></div><div><strong>শাখা</strong><p>একাধিক দোকান/শাখা যোগ ও পরিচালনা করুন।</p></div></div>
         <div class="step"><div class="step-n"><i class="bi bi-gear"></i></div><div><strong>সেটিংস</strong><p>কোম্পানির নাম, ফোন, ইমেইল, ঠিকানা, লোগো — সব ইনভয়েসে দেখায়।</p></div></div>
@@ -281,7 +312,7 @@
     </div>
 
     <!-- API -->
-    <div class="section">
+    <div class="section" id="bn-api">
         <div class="section-title"><div class="ic" style="background:#1f2937"><i class="bi bi-plug"></i></div> ই-কমার্স API</div>
         <div class="step"><div class="step-n"><i class="bi bi-code-slash"></i></div><div><strong>REST API এন্ডপয়েন্ট</strong>
             <p>

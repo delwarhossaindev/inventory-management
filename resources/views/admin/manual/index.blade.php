@@ -297,6 +297,7 @@
                 <div class="section-head">Daily Operations</div>
                 <nav class="nav flex-column">
                     <a class="nav-link" href="#pos">POS (Point of Sale)</a>
+                    <a class="nav-link" href="#pos2">POS 2 (Search Mode)</a>
                     <a class="nav-link" href="#sales">Sales & Invoices</a>
                     <a class="nav-link" href="#thermal">Thermal Receipt</a>
                     <a class="nav-link" href="#quotations">Quotations</a>
@@ -310,7 +311,9 @@
                 <nav class="nav flex-column">
                     <a class="nav-link" href="#products">Products & Warranty</a>
                     <a class="nav-link" href="#categories">Categories</a>
+                    <a class="nav-link" href="#units">Units of Measure</a>
                     <a class="nav-link" href="#stock">Stock Management</a>
+                    <a class="nav-link" href="#batches">Stock Batches (FIFO)</a>
                     <a class="nav-link" href="#purchases">Purchases</a>
                     <a class="nav-link" href="#barcodes">Barcode Labels</a>
                 </nav>
@@ -318,6 +321,7 @@
                 <div class="section-head">Finance</div>
                 <nav class="nav flex-column">
                     <a class="nav-link" href="#expenses">Expenses</a>
+                    <a class="nav-link" href="#accounting">Accounting</a>
                     <a class="nav-link" href="#reports">Reports</a>
                 </nav>
 
@@ -688,6 +692,16 @@
             <div class="step-card"><div class="step-num">5</div><div><h6><i class="bi bi-check2-circle me-1"></i> Complete Sale</h6><p>Invoice opens auto. Stock & warranty auto-calculated.</p></div></div>
         </div>
 
+        {{-- ============== POS 2 ============== --}}
+        <div class="manual-section mb-4 reveal" id="pos2">
+            <div class="section-title"><div class="icon-box" style="background:#0284c7"><i class="bi bi-search"></i></div> POS 2 — Search Mode</div>
+            <p class="text-muted mb-3">POS 2 is a lightweight, search-first interface — no pre-loaded product grid, ideal for large catalogs where scrolling is impractical.</p>
+            <div class="step-card"><div class="step-num">1</div><div><h6><i class="bi bi-search me-1"></i> Type to search</h6><p>Begin typing a product name, SKU, model, or scan a barcode. Matching results appear instantly — nothing is pre-loaded.</p></div></div>
+            <div class="step-card"><div class="step-num">2</div><div><h6><i class="bi bi-cart-plus me-1"></i> Select & add to cart</h6><p>Click a result to add it. Adjust quantity directly in the cart.</p></div></div>
+            <div class="step-card"><div class="step-num">3</div><div><h6><i class="bi bi-cash-coin me-1"></i> Complete payment</h6><p>Same as standard POS — customer, discount, tax, payment method.</p></div></div>
+            <div class="tip-box"><i class="bi bi-lightbulb-fill"></i> Use POS 2 when you have hundreds of products. It's faster on low-RAM devices because it skips loading the full product grid.</div>
+        </div>
+
         {{-- ============== SALES ============== --}}
         <div class="manual-section mb-4 reveal" id="sales">
             <div class="section-title"><div class="icon-box" style="background:#8b5cf6"><i class="bi bi-receipt"></i></div> Sales & Invoices</div>
@@ -753,6 +767,15 @@
             <div class="step-card"><div class="step-num"><i class="bi bi-layers"></i></div><div><h6>3-level hierarchy</h6><p>Main Category > Category > Sub Category.</p></div></div>
         </div>
 
+        {{-- ============== UNITS ============== --}}
+        <div class="manual-section mb-4 reveal" id="units">
+            <div class="section-title"><div class="icon-box" style="background:#64748b"><i class="bi bi-rulers"></i></div> Units of Measure</div>
+            <p class="text-muted mb-3">Define the measurement units used when adding products (e.g. Pcs, Kg, Meters, Liters).</p>
+            <div class="step-card"><div class="step-num"><i class="bi bi-plus-lg"></i></div><div><h6>Add a unit</h6><p>Catalog > Units > New. Enter the unit name (e.g. "Pcs", "Box", "Kg") and abbreviation.</p></div></div>
+            <div class="step-card"><div class="step-num"><i class="bi bi-pencil"></i></div><div><h6>Edit or delete</h6><p>Update the name anytime. You cannot delete a unit that is assigned to products.</p></div></div>
+            <div class="tip-box"><i class="bi bi-lightbulb-fill"></i> Set a default unit when creating products. It appears on invoices and stock reports.</div>
+        </div>
+
         {{-- ============== STOCK ============== --}}
         <div class="manual-section mb-4 reveal" id="stock">
             <div class="section-title"><div class="icon-box" style="background:#06b6d4"><i class="bi bi-clipboard-data"></i></div> Stock Management</div>
@@ -760,6 +783,15 @@
             <div class="step-card"><div class="step-num"><i class="bi bi-pencil"></i></div><div><h6>Manual adjust</h6><p>For damage, loss, corrections.</p></div></div>
             <div class="step-card"><div class="step-num"><i class="bi bi-clock-history"></i></div><div><h6>Movements log</h6><p>Every change with running balance.</p></div></div>
             <div class="tip-box"><i class="bi bi-lightbulb-fill"></i> <strong>FIFO:</strong> First-In-First-Out — oldest cost used first for accurate profit.</div>
+        </div>
+
+        {{-- ============== BATCHES ============== --}}
+        <div class="manual-section mb-4 reveal" id="batches">
+            <div class="section-title"><div class="icon-box" style="background:#0369a1"><i class="bi bi-layers"></i></div> Stock Batches (FIFO)</div>
+            <p class="text-muted mb-3">Every purchase creates a stock batch. Batches are consumed oldest-first (FIFO) to give you accurate cost of goods sold.</p>
+            <div class="step-card"><div class="step-num"><i class="bi bi-eye"></i></div><div><h6>View all batches</h6><p>Catalog > Batches. See each batch's number (e.g. B000001), received date, unit cost, original quantity, and <strong>remaining quantity</strong>.</p></div></div>
+            <div class="step-card"><div class="step-num"><i class="bi bi-search"></i></div><div><h6>Filter by product</h6><p>Search by product name to see all batches for that SKU and identify which cost layer is currently being sold.</p></div></div>
+            <div class="tip-box"><i class="bi bi-lightbulb-fill"></i> <strong>Why FIFO?</strong> When you sell a product, the cost from the oldest batch is used first. This gives the most accurate profit margin, especially when purchase prices fluctuate.</div>
         </div>
 
         {{-- ============== PURCHASES ============== --}}
@@ -780,6 +812,33 @@
             <div class="section-title"><div class="icon-box" style="background:#dc2626"><i class="bi bi-wallet2"></i></div> Expenses</div>
             <div class="step-card"><div class="step-num">1</div><div><h6>Add expense</h6><p>Title, amount, category (create on-the-fly), date.</p></div></div>
             <div class="step-card"><div class="step-num">2</div><div><h6>Filter & track</h6><p>By category, date range. Total shown.</p></div></div>
+        </div>
+
+        {{-- ============== ACCOUNTING ============== --}}
+        <div class="manual-section mb-4 reveal" id="accounting">
+            <div class="section-title"><div class="icon-box" style="background:#0f766e"><i class="bi bi-journal-bookmark"></i></div> Accounting</div>
+            <p class="text-muted mb-3">High-level financial views — useful for reconciliation and accountants.</p>
+            <div class="row g-2">
+                <div class="col-md-6">
+                    <div class="step-card">
+                        <i class="bi bi-journal-check text-teal fs-4" style="color:#0f766e"></i>
+                        <div>
+                            <h6>Day Book</h6>
+                            <p>Chronological record of every financial transaction — sales, purchases, payments, expenses — for any date range. Use it for daily reconciliation.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="step-card">
+                        <i class="bi bi-scale text-info fs-4"></i>
+                        <div>
+                            <h6>Trial Balance</h6>
+                            <p>Summary of debit and credit totals across all accounts. Confirms the books are balanced before producing the P&L.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tip-box"><i class="bi bi-lightbulb-fill"></i> Accounting > Day Book is the fastest way to verify what happened on a specific date — filter by date range and export or print the result.</div>
         </div>
 
         {{-- ============== REPORTS ============== --}}
