@@ -15,7 +15,8 @@ return [
         'collapsible' => false,
         'items' => [
             ['label' => 'Dashboard', 'icon' => 'bi-speedometer2', 'route' => 'admin.dashboard'],
-            ['label' => 'POS', 'icon' => 'bi-cart-check', 'route' => 'admin.pos.index', 'active' => 'admin.pos.*', 'can' => 'access pos'],
+            ['label' => 'POS', 'icon' => 'bi-cart-check', 'route' => 'admin.pos.index', 'active' => 'admin.pos.index', 'can' => 'access pos'],
+            ['label' => 'POS 2', 'icon' => 'bi-cart-check-fill', 'route' => 'admin.pos.pos2', 'active' => 'admin.pos.pos2', 'can' => 'access pos'],
         ],
     ],
     [
@@ -59,6 +60,7 @@ return [
         'collapsible' => true,
         'items' => [
             ['label' => 'Day Book', 'icon' => 'bi-journal-bookmark', 'route' => 'admin.accounting.day-book', 'active' => 'admin.accounting.*', 'can' => 'view reports'],
+            ['label' => 'Trial Balance', 'icon' => 'bi-list-columns-reverse', 'route' => 'admin.accounting.trial-balance', 'active' => 'admin.accounting.*', 'can' => 'view reports'],
         ],
     ],
     [

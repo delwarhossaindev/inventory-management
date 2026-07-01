@@ -36,6 +36,43 @@ class PosController extends Controller
         ]);
     }
 
+    /** POS 2 — search-driven, no pre-loaded product grid. */
+    public function pos2()
+    {
+        return view('admin.pos.pos2', [
+            'customers' => Customer::where('status', 'active')->orderBy('name')->get(['id', 'name', 'phone']),
+        ]);
+    }
+
+    /** AJAX product search for POS 2 (also resolves batch numbers). */
+    public function searchProducts(Request $request)
+    {
+        $q = trim($request->get('q', ''));
+        if (strlen($q) < 1) {
+            return response()->json([]);
+        }
+
+        // If q exactly matches a batch number, return that product only
+        $batchPid = StockBatch::where('batch_no', $q)->where('remaining', '>', 0)->value('product_id');
+
+        $query = Product::active()->orderBy('name')->limit(24);
+
+        if ($batchPid) {
+            $query->where('id', $batchPid);
+        } else {
+            $query->where(function ($sub) use ($q) {
+                $sub->where('name', 'like', "%{$q}%")
+                    ->orWhere('sku', 'like', "%{$q}%")
+                    ->orWhere('barcode', 'like', "%{$q}%")
+                    ->orWhere('model', 'like', "%{$q}%");
+            });
+        }
+
+        return response()->json(
+            $query->get(['id', 'name', 'sku', 'barcode', 'sale_price', 'stock_quantity', 'image_url'])
+        );
+    }
+
     /** Quick-create a customer from the POS screen (returns JSON). */
     public function storeCustomer(Request $request)
     {

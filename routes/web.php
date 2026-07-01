@@ -81,6 +81,8 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('pos', [PosController::class, 'index'])->name('pos.index');
     Route::post('pos', [PosController::class, 'store'])->name('pos.store');
     Route::post('pos/customers', [PosController::class, 'storeCustomer'])->name('pos.customers.store');
+    Route::get('pos2', [PosController::class, 'pos2'])->name('pos.pos2');
+    Route::get('pos/search', [PosController::class, 'searchProducts'])->name('pos.search');
 
     // Quotations
     Route::get('quotations/{quotation}/pdf', [QuotationController::class, 'pdf'])->name('quotations.pdf');
@@ -120,6 +122,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 
     // Accounting
     Route::get('accounting/day-book', [AccountingController::class, 'dayBook'])->name('accounting.day-book');
+    Route::get('accounting/trial-balance', [AccountingController::class, 'trialBalance'])->name('accounting.trial-balance');
 
     // Access control
     Route::resource('users', UserController::class)->except('show');

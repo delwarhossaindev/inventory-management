@@ -12,6 +12,7 @@ use App\Support\Pdf;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class AccountingController extends Controller
 {
@@ -119,6 +120,120 @@ class AccountingController extends Controller
             'breakdown' => $breakdown,
             'from' => $from->toDateString(),
             'to' => $to->toDateString(),
+        ]);
+    }
+
+    /**
+     * Trial balance: snapshot of all account balances up to a given date.
+     */
+    public function trialBalance(Request $request)
+    {
+        $asAt = $request->filled('date')
+            ? Carbon::parse($request->date)->endOfDay()
+            : Carbon::now()->endOfDay();
+
+        // Cash collected from customers (initial paid + later payments)
+        $salesCollected = (float) Sale::where('sale_date', '<=', $asAt)->sum('paid')
+            + (float) Payment::where('payable_type', Sale::class)->where('payment_date', '<=', $asAt)->sum('amount');
+
+        // Cash paid to suppliers (initial paid + later payments)
+        $purchasesPaid = (float) Purchase::where('purchase_date', '<=', $asAt)->sum('paid')
+            + (float) Payment::where('payable_type', Purchase::class)->where('payment_date', '<=', $asAt)->sum('amount');
+
+        $expensesTotal = (float) Expense::where('expense_date', '<=', $asAt)->sum('amount');
+        $returnsTotal  = (float) SaleReturn::where('return_date', '<=', $asAt)->sum('total');
+
+        // Net cash position (may be negative = overdraft)
+        $cash        = $salesCollected - $purchasesPaid - $expensesTotal - $returnsTotal;
+        $revenue     = (float) Sale::where('sale_date', '<=', $asAt)->sum('total');
+        $receivables = max($revenue - $salesCollected, 0);
+        $inventory   = (float) DB::table('stock_batches')->sum(DB::raw('remaining * unit_cost'));
+        $cogs        = (float) DB::table('sale_items')
+            ->join('sales', 'sales.id', '=', 'sale_items.sale_id')
+            ->where('sales.sale_date', '<=', $asAt)
+            ->sum('sale_items.cost_total');
+        $totalPurchases = (float) Purchase::where('purchase_date', '<=', $asAt)->sum('total');
+        $payables       = max($totalPurchases - $purchasesPaid, 0);
+
+        // Build debit accounts
+        $debit = [];
+        if ($cash >= 0) {
+            $debit[] = ['Cash & Bank', $cash, 'Asset'];
+        }
+        $debit[] = ['Accounts Receivable', $receivables, 'Asset'];
+        $debit[] = ['Closing Inventory (FIFO)', $inventory, 'Asset'];
+        $debit[] = ['Cost of Goods Sold', $cogs, 'Expense'];
+        $debit[] = ['Operating Expenses', $expensesTotal, 'Expense'];
+        if ($returnsTotal > 0) {
+            $debit[] = ['Sale Returns', $returnsTotal, 'Contra'];
+        }
+
+        // Build credit accounts
+        $credit = [];
+        $credit[] = ['Sales Revenue', $revenue, 'Revenue'];
+        if ($payables > 0) {
+            $credit[] = ['Accounts Payable', $payables, 'Liability'];
+        }
+        if ($cash < 0) {
+            $credit[] = ['Bank Overdraft', abs($cash), 'Liability'];
+        }
+
+        $totalDr = array_sum(array_column($debit, 1));
+        $totalCr = array_sum(array_column($credit, 1));
+
+        // Owner's equity is the balancing figure (capital + retained earnings)
+        $equity = $totalDr - $totalCr;
+        if ($equity > 0) {
+            $credit[] = ["Owner's Equity", $equity, 'Equity'];
+            $totalCr += $equity;
+        } elseif ($equity < 0) {
+            $debit[] = ['Accumulated Deficit', abs($equity), 'Loss'];
+            $totalDr += abs($equity);
+        }
+
+        $grossProfit = $revenue - $returnsTotal - $cogs;
+        $netProfit   = $grossProfit - $expensesTotal;
+
+        if ($request->boolean('pdf')) {
+            $maxRows = max(count($debit), count($credit));
+            $pdfRows = [];
+            for ($i = 0; $i < $maxRows; $i++) {
+                $dr = $debit[$i] ?? null;
+                $cr = $credit[$i] ?? null;
+                $pdfRows[] = [
+                    $dr ? $dr[0] : '',
+                    $dr ? number_format($dr[1], 2) : '',
+                    $cr ? $cr[0] : '',
+                    $cr ? number_format($cr[1], 2) : '',
+                ];
+            }
+
+            return Pdf::render('pdf.report', [
+                'title'  => 'Trial Balance',
+                'period' => 'As at ' . $asAt->format('d M Y'),
+                'head'   => ['Particulars (Dr)', 'Amount (৳)', 'Particulars (Cr)', 'Amount (৳)'],
+                'align'  => ['left', 'right', 'left', 'right'],
+                'rows'   => $pdfRows,
+                'foot'   => ['Total', number_format($totalDr, 2), 'Total', number_format($totalCr, 2)],
+            ], 'Trial-Balance.pdf', $request->boolean('download'));
+        }
+
+        return view('admin.accounting.trial-balance', [
+            'asAt'        => $asAt->toDateString(),
+            'debit'       => $debit,
+            'credit'      => $credit,
+            'totalDr'     => $totalDr,
+            'totalCr'     => $totalCr,
+            'revenue'     => $revenue,
+            'cogs'        => $cogs,
+            'returns'     => $returnsTotal,
+            'expenses'    => $expensesTotal,
+            'grossProfit' => $grossProfit,
+            'netProfit'   => $netProfit,
+            'inventory'   => $inventory,
+            'receivables' => $receivables,
+            'payables'    => $payables,
+            'cash'        => $cash,
         ]);
     }
 
